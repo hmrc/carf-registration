@@ -22,11 +22,8 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
 
-class CarfController  @Inject()(
-                                 cc: ControllerComponents
-                               ) extends BackendController(cc):
+class CarfController @Inject() (
+    cc: ControllerComponents
+) extends BackendController(cc):
 
   def getDetails: Int = 5
-      
-  
-  
