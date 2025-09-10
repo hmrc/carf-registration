@@ -12,6 +12,7 @@ lazy val microservice = Project("carf-registration", file("."))
     // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
     // suppress warnings in generated routes files
     scalacOptions += "-Wconf:src=routes/.*:s",
+    scalafmtOnCompile := true
   )
   .settings(CodeCoverageSettings.settings: _*)
 
@@ -20,3 +21,5 @@ lazy val it = project
   .dependsOn(microservice % "test->test")
   .settings(DefaultBuildSettings.itSettings())
   .settings(libraryDependencies ++= AppDependencies.it)
+
+addCommandAlias("runAllChecks", ";clean;compile;scalafmtAll;coverage;test;it/test;scalastyle;coverageReport")
