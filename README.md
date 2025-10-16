@@ -48,7 +48,7 @@ sbt "run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes"
 
 Service manager: CARF_ALL
 
-Port: 17000
+Port: 17001
 
 ### How to sign in locally and on staging
 
