@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfregistration.config
+package uk.gov.hmrc.carfregistration.models.responses
 
-import play.api.Configuration
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.carfregistration.models.Address
 
-import javax.inject.{Inject, Singleton}
+case class RegisterIndividualWithIdResponse(
+    safeId: String,
+    firstName: String,
+    lastName: String,
+    middleName: Option[String],
+    address: Address
+)
 
-@Singleton
-class AppConfig @Inject() (config: Configuration):
-
-  val appName: String = config.get[String]("appName")
+object RegisterIndividualWithIdResponse {
+  implicit val format: OFormat[RegisterIndividualWithIdResponse] = Json.format[RegisterIndividualWithIdResponse]
+}

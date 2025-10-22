@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.carfregistration
 
-import play.api.{Configuration, Environment}
-import play.api.inject.{Binding, Module => AppModule}
+import com.google.inject.AbstractModule
+import uk.gov.hmrc.carfregistration.config.AppConfig
+import uk.gov.hmrc.carfregistration.controllers.actions.{AuthAction, DefaultAuthAction}
 
 import java.time.Clock
 
-class Module extends AppModule:
-  override def bindings(
-      environment: Environment,
-      configuration: Configuration
-  ): Seq[Binding[_]] =
-    bind[Clock].toInstance(Clock.systemDefaultZone) :: // inject if current time needs to be controlled in unit tests
-      Nil
+class Module extends AbstractModule {
+
+  override def configure(): Unit = {
+    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
+    bind(classOf[AuthAction]).to(classOf[DefaultAuthAction]).asEagerSingleton()
+    bind(classOf[AppConfig]).asEagerSingleton()
+  }
+}

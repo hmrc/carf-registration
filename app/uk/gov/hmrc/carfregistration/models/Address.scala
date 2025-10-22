@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfregistration.config
+package uk.gov.hmrc.carfregistration.models
 
-import play.api.Configuration
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.{Inject, Singleton}
+case class Address(
+    addressLine1: String,
+    addressLine2: Option[String],
+    addressLine3: Option[String],
+    addressLine4: Option[String],
+    postalCode: Option[String],
+    countryCode: String
+)
 
-@Singleton
-class AppConfig @Inject() (config: Configuration):
-
-  val appName: String = config.get[String]("appName")
+object Address {
+  implicit val format: OFormat[Address] = Json.format[Address]
+}

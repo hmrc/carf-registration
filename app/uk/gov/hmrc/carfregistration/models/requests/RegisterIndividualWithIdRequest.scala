@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfregistration.controllers
+package uk.gov.hmrc.carfregistration.models.requests
 
-import play.api.mvc.ControllerComponents
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.Inject
+case class RegisterIndividualWithIdRequest(
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String,
+    dateOfBirth: String,
+    firstName: String,
+    lastName: String
+)
 
-class CarfController @Inject() (
-    cc: ControllerComponents
-) extends BackendController(cc):
-
-  def getDetails: Int = 5
+object RegisterIndividualWithIdRequest {
+  implicit val format: OFormat[RegisterIndividualWithIdRequest] = Json.format[RegisterIndividualWithIdRequest]
+}
