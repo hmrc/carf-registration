@@ -76,7 +76,7 @@ class RegistrationService @Inject() () {
       case _   => Ok(Json.toJson(createFullOrganisationResponse()))
     }
 
-  private def createFullOrganisationResponse(): RegisterOrganisationWithIdResponse =
+  def createFullOrganisationResponse(): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
       safeId = "test-safe-id",
       code = "0000",
@@ -91,7 +91,7 @@ class RegistrationService @Inject() () {
       )
     )
 
-  private def createEmptyOrganisationResponse(): RegisterOrganisationWithIdResponse =
+  def createEmptyOrganisationResponse(): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
       safeId = "test-safe-id",
       code = "0002",
