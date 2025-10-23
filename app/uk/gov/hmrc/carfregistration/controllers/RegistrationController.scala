@@ -22,6 +22,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.carfregistration.controllers.actions.AuthAction
 import uk.gov.hmrc.carfregistration.models.requests.RegisterIndividualWithIdRequest
+import uk.gov.hmrc.carfregistration.models.requests.RegisterOrganisationWithIdRequest
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -44,4 +45,12 @@ class RegistrationController @Inject() (
     }
   }
 
+  def registerOrganisationWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
+    withJsonBody[RegisterOrganisationWithIdRequest] { organisationRequest =>
+      logger.info(s"Organisation Request \n-> $request")
+      val response = service.returnResponseOrganisation(organisationRequest)
+      logger.info(s"Organisation Response \n-> $response")
+      Future.successful(response)
+    }
+  }
 }
