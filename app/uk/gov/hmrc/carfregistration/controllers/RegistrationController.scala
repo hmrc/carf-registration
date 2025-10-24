@@ -21,7 +21,7 @@ import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.carfregistration.controllers.actions.AuthAction
-import uk.gov.hmrc.carfregistration.models.requests.RegisterIndividualWithIdRequest
+import uk.gov.hmrc.carfregistration.models.requests.RegisterIndividualWithIdFrontendRequest
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -36,7 +36,7 @@ class RegistrationController @Inject() (
     with Logging {
 
   def registerIndividualWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
-    withJsonBody[RegisterIndividualWithIdRequest] { request =>
+    withJsonBody[RegisterIndividualWithIdFrontendRequest] { request =>
       logger.info(s"%%% LOOK HERE (Request) %%% \n-> $request")
       val response = service.returnResponse(request.IDNumber)
       logger.info(s"%%% LOOK HERE (Response) %%% \n-> $response")

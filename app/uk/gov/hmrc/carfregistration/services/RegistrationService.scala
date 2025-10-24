@@ -20,11 +20,16 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound, Ok}
 import uk.gov.hmrc.carfregistration.models.Address
-import uk.gov.hmrc.carfregistration.models.responses.RegisterIndividualWithIdResponse
+import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndividualWithIDRequest, RegisterIndividualWithIdFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.responses.RegisterIndividualWithIdFrontendResponse
 
 import javax.inject.Inject
 
 class RegistrationService @Inject() () {
+  
+  def createRequest(request: RegisterIndividualWithIdFrontendRequest): RegisterIndividualWithIDRequest = {
+    RegisterIndividualWithIDRequest()
+  }
 
   def returnResponse(nino: String): Result =
     nino.take(1) match {
@@ -34,8 +39,8 @@ class RegistrationService @Inject() () {
       case _   => Ok(Json.toJson(createFullIndividualResponse()))
     }
 
-  def createFullIndividualResponse(): RegisterIndividualWithIdResponse =
-    RegisterIndividualWithIdResponse(
+  def createFullIndividualResponse(): RegisterIndividualWithIdFrontendResponse =
+    RegisterIndividualWithIdFrontendResponse(
       safeId = "test-safe-id",
       firstName = "Timmy",
       lastName = "Timmmy",
@@ -50,8 +55,8 @@ class RegistrationService @Inject() () {
       )
     )
 
-  def createEmptyIndividualResponse(): RegisterIndividualWithIdResponse =
-    RegisterIndividualWithIdResponse(
+  def createEmptyIndividualResponse(): RegisterIndividualWithIdFrontendResponse =
+    RegisterIndividualWithIdFrontendResponse(
       safeId = "test-safe-id",
       firstName = "Test",
       lastName = "Userson",
