@@ -38,16 +38,16 @@ class RegistrationController @Inject() (
 
   def registerIndividualWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterIndividualWithIdRequest] { request =>
-      logger.info(s"%%% LOOK HERE (Request) %%% \n-> $request")
+      logger.info(s"%%% LOOK HERE (Individual Request) %%% \n-> $request")
       val response = service.returnResponse(request.IDNumber)
-      logger.info(s"%%% LOOK HERE (Response) %%% \n-> $response")
+      logger.info(s"%%% LOOK HERE (Individual Response) %%% \n-> $response")
       Future.successful(response)
     }
   }
 
   def registerOrganisationWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterOrganisationWithIdRequest] { organisationRequest =>
-      logger.info(s"Organisation Request \n-> $request")
+      logger.info(s"Organisation Request \n-> $organisationRequest")
       val response = service.returnResponseOrganisation(organisationRequest)
       logger.info(s"Organisation Response \n-> $response")
       Future.successful(response)
