@@ -18,6 +18,7 @@ package uk.gov.hmrc.carfregistration.controllers
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.http.HttpEntity
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.carfregistration.controllers.actions.AuthAction
@@ -47,9 +48,15 @@ class RegistrationController @Inject() (
 
   def registerOrganisationWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterOrganisationWithIdRequest] { organisationRequest =>
-      logger.info(s"Organisation Request \n-> $organisationRequest")
+      logger.info(s"LOOK HERE (Organisation Request) \n-> $organisationRequest")
       val response = service.returnResponseOrganisation(organisationRequest)
-      logger.info(s"Organisation Response \n-> $response")
+
+      val responseBody = response.body match {
+        case HttpEntity.Strict(data, _) => data.utf8String
+        case _                          => "[empty body]"
+      }
+
+      logger.info(s"LOOK HERE (Organisation Response) \n-> Status code: ${response.header.status}, Body: $responseBody")
       Future.successful(response)
     }
   }
