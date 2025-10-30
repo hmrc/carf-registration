@@ -72,15 +72,15 @@ class RegistrationService @Inject() () {
     request.IDNumber.take(1) match {
       case "9" => InternalServerError("An unexpected error occurred")
       case "8" => NotFound("The match was unsuccessful")
-      case "7" => Ok(Json.toJson(createEmptyOrganisationResponse()))
-      case _   => Ok(Json.toJson(createFullOrganisationResponse()))
+      case "7" => Ok(Json.toJson(createEmptyOrganisationResponse(request)))
+      case _   => Ok(Json.toJson(createFullOrganisationResponse(request)))
     }
 
-  def createFullOrganisationResponse(): RegisterOrganisationWithIdResponse =
+  def createFullOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
       safeId = "test-safe-id",
       code = "0000",
-      organisationName = "Timmy Ltd",
+      organisationName = request.organisationName.getOrElse("Timmy Ltd"),
       address = Address(
         addressLine1 = "6 High Street",
         addressLine2 = Some("Birmingham"),
@@ -91,11 +91,11 @@ class RegistrationService @Inject() () {
       )
     )
 
-  def createEmptyOrganisationResponse(): RegisterOrganisationWithIdResponse =
+  def createEmptyOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
       safeId = "test-safe-id",
       code = "0002",
-      organisationName = "Park Ltd",
+      organisationName = request.organisationName.getOrElse("Park Ltd"),
       address = Address(
         addressLine1 = "8 High Street",
         addressLine2 = None,
