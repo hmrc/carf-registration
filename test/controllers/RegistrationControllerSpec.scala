@@ -116,9 +116,6 @@ class RegistrationControllerSpec extends SpecBase {
 
         val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
 
-        // status(result) mustBe OK
-        // contentAsJson(result) mustBe testServiceOrganisationResponseBody
-
         result.toString mustBe Future.successful(Ok(testServiceOrganisationResponseBody)).toString
       }
       "must return bad request when the request is not valid" in {
