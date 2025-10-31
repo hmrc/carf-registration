@@ -79,7 +79,7 @@ class RegistrationService @Inject() () {
   def createFullOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
       safeId = "test-safe-id",
-      code = "0000",
+      code = Some("0000"),
       organisationName = request.organisationName.getOrElse("Timmy Ltd"),
       address = Address(
         addressLine1 = "6 High Street",
@@ -94,7 +94,7 @@ class RegistrationService @Inject() () {
   def createEmptyOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
       safeId = "test-safe-id",
-      code = "0002",
+      code = Some("0002"),
       organisationName = request.organisationName.getOrElse("Park Ltd"),
       address = Address(
         addressLine1 = "8 High Street",

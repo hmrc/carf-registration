@@ -76,7 +76,7 @@ class RegistrationControllerSpec extends SpecBase {
   val testServiceOrganisationResponseBody: JsValue = Json.toJson(
     RegisterOrganisationWithIdResponse(
       safeId = "XW3249234924",
-      code = "0001",
+      code = Some("0001"),
       organisationName = "Monsters Inc",
       address = Address(
         addressLine1 = "TestLine1",
