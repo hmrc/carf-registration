@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfregistration.models.responses
+package uk.gov.hmrc.carfregistration.config
 
-import play.api.libs.json.{Json, OFormat}
+object Constants {
 
-case class RegisterOrganisationWithIdResponse(
-    safeId: String,
-    code: Option[String],
-    organisationName: String,
-    address: AddressResponse
-)
+  val ukTimeZoneStringId = "Europe/London"
 
-object RegisterOrganisationWithIdResponse {
-  implicit val format: OFormat[RegisterOrganisationWithIdResponse] = Json.format[RegisterOrganisationWithIdResponse]
 }

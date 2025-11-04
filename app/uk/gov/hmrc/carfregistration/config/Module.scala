@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.carfregistration.config
 
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import com.google.inject.AbstractModule
+import uk.gov.hmrc.carfregistration.controllers.actions.{AuthAction, DefaultAuthAction}
+import uk.gov.hmrc.carfregistration.models.{UUIDGenImpl, UuidGen}
 
-import javax.inject.{Inject, Singleton}
+import java.time.{Clock, ZoneId}
 
-@Singleton
-class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig):
+class Module extends AbstractModule {
 
-  val appName: String = config.get[String]("appName")
-
-  private val registerWithIdHost: String = servicesConfig.baseUrl("register-with-id")
-  val registerWithIdBaseUrl: String      =
-    s"$registerWithIdHost${config.get[String]("microservice.services.register-with-id.uri")}"
+  override def configure(): Unit = {
+    bind(classOf[Clock]).toInstance(Clock.system(ZoneId.of(Constants.ukTimeZoneStringId)))
+    bind(classOf[UuidGen]).toInstance(UUIDGenImpl)
+    bind(classOf[AuthAction]).to(classOf[DefaultAuthAction]).asEagerSingleton()
+    bind(classOf[AppConfig]).asEagerSingleton()
+  }
+}

@@ -17,16 +17,11 @@
 package uk.gov.hmrc.carfregistration.models.responses
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.carfregistration.models.Address
 
-case class RegisterIndividualWithIdResponse(
-    safeId: String,
-    firstName: String,
-    lastName: String,
-    middleName: Option[String],
-    address: Address
+case class ResponseCommon(
+    status: String
 )
 
-object RegisterIndividualWithIdResponse {
-  implicit val format: OFormat[RegisterIndividualWithIdResponse] = Json.format[RegisterIndividualWithIdResponse]
+object ResponseCommon {
+  implicit val format: OFormat[ResponseCommon] = Json.format[ResponseCommon]
 }

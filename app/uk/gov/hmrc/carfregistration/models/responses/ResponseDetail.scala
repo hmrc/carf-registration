@@ -18,13 +18,12 @@ package uk.gov.hmrc.carfregistration.models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterOrganisationWithIdResponse(
-    safeId: String,
-    code: Option[String],
-    organisationName: String,
-    address: AddressResponse
+case class ResponseDetail(
+    SAFEID: String,
+    address: AddressResponse,
+    individual: IndividualResponse
 )
 
-object RegisterOrganisationWithIdResponse {
-  implicit val format: OFormat[RegisterOrganisationWithIdResponse] = Json.format[RegisterOrganisationWithIdResponse]
+object ResponseDetail {
+  implicit val format: OFormat[ResponseDetail] = Json.format[ResponseDetail]
 }
