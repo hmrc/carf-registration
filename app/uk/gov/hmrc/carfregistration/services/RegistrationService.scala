@@ -73,24 +73,8 @@ class RegistrationService @Inject() () {
       case "9" => InternalServerError("An unexpected error occurred")
       case "8" => NotFound("The match was unsuccessful")
       case "7" => Ok(Json.toJson(createEmptyOrganisationResponse(request)))
-      case "2" => Ok(Json.toJson(createNonUkOrganisationResponse(request)))
       case _   => Ok(Json.toJson(createFullOrganisationResponse(request)))
     }
-
-  def createNonUkOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
-    RegisterOrganisationWithIdResponse(
-      safeId = "test-safe-id-non-uk",
-      code = Some("0001"),
-      organisationName = request.organisationName.getOrElse("Outside Uk Limited"),
-      address = Address(
-        addressLine1 = "123 International Street",
-        addressLine2 = Some("New York"),
-        addressLine3 = None,
-        addressLine4 = None,
-        postalCode = Some("10001"),
-        countryCode = "US"
-      )
-    )
 
   def createFullOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
     RegisterOrganisationWithIdResponse(
@@ -118,7 +102,7 @@ class RegistrationService @Inject() () {
         addressLine3 = None,
         addressLine4 = None,
         postalCode = None,
-        countryCode = "GB"
+        countryCode = "US"
       )
     )
 }
