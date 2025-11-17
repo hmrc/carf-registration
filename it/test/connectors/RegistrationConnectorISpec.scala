@@ -40,7 +40,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     responseDetail = ResponseDetail(
       SAFEID = "Test-SafeId",
       address = testAddressResponse,
-      individual = IndividualResponse(firstName = "Katie", lastName = "Long", middleName = Some("Bjorn")),
+      individual = Some(IndividualResponse(firstName = "Katie", lastName = "Long", middleName = Some("Bjorn"))),
       organisation = None
     )
   )

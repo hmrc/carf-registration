@@ -131,12 +131,17 @@ class RegistrationControllerSpec extends SpecBase {
 
     "registerOrganisationWithId" - {
       "must return success response when the service can retrieve a business record" in {
-        when(mockService.registerOrganisationWithId(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
+
+        val expectedOrgResponse = testServiceOrganisationResponseBody.as[RegisterOrganisationWithIdFrontendResponse]
+
+        when(mockService.registerOrganisationWithId(any())(any()))
+          .thenReturn(Future.successful(Right(expectedOrgResponse)))
 
         val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
 
-        status(result)        mustBe OK
-        contentAsJson(result) mustBe Json.toJson(testServiceResponseSuccess)
+        status(result) mustBe OK
+
+        contentAsJson(result) mustBe testServiceOrganisationResponseBody
 
       }
 
