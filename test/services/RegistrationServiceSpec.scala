@@ -21,7 +21,7 @@ import cats.data.EitherT
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
-import uk.gov.hmrc.carfregistration.models.requests.RegisterIndWithIdFrontendRequest
+import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
 import uk.gov.hmrc.carfregistration.models.responses.*
 import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.carfregistration.services.RegistrationService
@@ -56,16 +56,6 @@ class RegistrationServiceSpec extends SpecBase {
     )
   )
 
-  val testAPIResponseOrganisation = RegisterIndWithIdAPIResponse(
-    responseCommon = ResponseCommon(status = "200"),
-    responseDetail = ResponseDetail(
-      SAFEID = "test-SAFEID",
-      address = testAddressResponse,
-      individual = None,
-      organisation = Some(OrganisationResponse(organisationName = "Testing Ltd", code = "OOOO"))
-    )
-  )
-
   val testFrontendResponse = RegisterIndWithIdFrontendResponse(
     safeId = "test-SAFEID",
     firstName = "Colin",
@@ -81,6 +71,31 @@ class RegistrationServiceSpec extends SpecBase {
     addressLine4 = Some("Sixty Four"),
     postalCode = Some("G66 2AZ"),
     countryCode = "GB"
+  )
+
+  val testOrganisationFrontendRequest = RegisterOrganisationWithIdFrontendRequest(
+    requiresNameMatch = true,
+    IDNumber = "1234567890",
+    IDType = "UTR",
+    organisationName = Some("Testing Ltd"),
+    organisationType = Some("0001")
+  )
+
+  val testAPIResponseOrganisation = RegisterOrganisationWithIdAPIResponse(
+    responseCommon = ResponseCommon(status = "OK"),
+    responseDetail = ResponseDetail(
+      SAFEID = "test-SAFEID-org",
+      address = testAddressResponse,
+      individual = None,
+      organisation = Some(OrganisationResponse(organisationName = "Testing Ltd", code = "0001"))
+    )
+  )
+
+  val testOrganisationFrontendResponse = RegisterOrganisationWithIdFrontendResponse(
+    safeId = "test-SAFEID-org",
+    organisationName = "Testing Ltd",
+    code = Some("0001"),
+    address = testAddressResponse
   )
 
   override def beforeEach(): Unit = {
@@ -120,6 +135,44 @@ class RegistrationServiceSpec extends SpecBase {
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](JsonValidationError))
 
         val result = testService.registerIndividualWithId(testFrontendRequest).futureValue
+
+        result mustBe Left(JsonValidationError)
+      }
+    }
+
+    "registerOrganisationWithId" - {
+      "must return success frontend response when the connector returns a successful response" in {
+        when(mockConnector.organisationWithID(any())(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponseOrganisation))
+
+        val result = testService.registerOrganisationWithId(testOrganisationFrontendRequest).futureValue
+
+        result mustBe Right(testOrganisationFrontendResponse)
+      }
+
+      "must return not found when the connector returns a not found error" in {
+        when(mockConnector.organisationWithID(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdAPIResponse](NotFoundError))
+
+        val result = testService.registerOrganisationWithId(testOrganisationFrontendRequest).futureValue
+
+        result mustBe Left(NotFoundError)
+      }
+
+      "must return an internal server error when the connector returns an unexpected error" in {
+        when(mockConnector.organisationWithID(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdAPIResponse](InternalServerError))
+
+        val result = testService.registerOrganisationWithId(testOrganisationFrontendRequest).futureValue
+
+        result mustBe Left(InternalServerError)
+      }
+
+      "must return a json validation error when the connector cannot parse the response" in {
+        when(mockConnector.organisationWithID(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdAPIResponse](JsonValidationError))
+
+        val result = testService.registerOrganisationWithId(testOrganisationFrontendRequest).futureValue
 
         result mustBe Left(JsonValidationError)
       }
