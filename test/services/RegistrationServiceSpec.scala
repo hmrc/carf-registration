@@ -23,7 +23,7 @@ import org.mockito.Mockito.{reset, when}
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
 import uk.gov.hmrc.carfregistration.models.requests.RegisterIndWithIdFrontendRequest
 import uk.gov.hmrc.carfregistration.models.responses.*
-import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError, UuidGen}
+import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 
 import java.util.UUID
@@ -46,12 +46,23 @@ class RegistrationServiceSpec extends SpecBase {
       lastName = "Cranberry"
     )
 
-  val testAPIResponse = RegisterIndWithIdAPIResponse(
+  val testAPIResponseIndividual = RegisterIndWithIdAPIResponse(
     responseCommon = ResponseCommon(status = "200"),
     responseDetail = ResponseDetail(
       SAFEID = "test-SAFEID",
       address = testAddressResponse,
-      individual = IndividualResponse(firstName = "Colin", lastName = "Cranberry", middleName = Some("Pikachu"))
+      individual = Some(IndividualResponse(firstName = "Colin", lastName = "Cranberry", middleName = Some("Pikachu"))),
+      organisation = None
+    )
+  )
+
+  val testAPIResponseOrganisation = RegisterIndWithIdAPIResponse(
+    responseCommon = ResponseCommon(status = "200"),
+    responseDetail = ResponseDetail(
+      SAFEID = "test-SAFEID",
+      address = testAddressResponse,
+      individual = None,
+      organisation = Some(OrganisationResponse(organisationName = "Testing Ltd", code = "OOOO"))
     )
   )
 
@@ -82,7 +93,7 @@ class RegistrationServiceSpec extends SpecBase {
     "registerIndividualWithId" - {
       "must return success frontend response model when the connector returns a successful response" in {
         when(mockConnector.individualWithNino(any())(any()))
-          .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponse))
+          .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponseIndividual))
 
         val result = testService.registerIndividualWithId(testFrontendRequest).futureValue
 

@@ -21,11 +21,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Results.{BadRequest, Ok}
+import play.api.mvc.Results.BadRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
-import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdResponse}
+import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{InternalServerError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 
@@ -66,7 +66,7 @@ class RegistrationControllerSpec extends SpecBase {
 
   // automatch
   val testOrganisationRequest: JsValue = Json.toJson(
-    RegisterOrganisationWithIdRequest(
+    RegisterOrganisationWithIdFrontendRequest(
       requiresNameMatch = false,
       IDNumber = "1234567890",
       IDType = "UTR",
@@ -76,7 +76,7 @@ class RegistrationControllerSpec extends SpecBase {
   )
 
   val testServiceOrganisationResponseBody: JsValue = Json.toJson(
-    RegisterOrganisationWithIdResponse(
+    RegisterOrganisationWithIdFrontendResponse(
       safeId = "XW3249234924",
       code = Some("0001"),
       organisationName = "Monsters Inc",
@@ -130,14 +130,16 @@ class RegistrationControllerSpec extends SpecBase {
     }
 
     "registerOrganisationWithId" - {
-      "must return response from service" in {
-        when(mockService.returnResponseOrganisation(any[RegisterOrganisationWithIdRequest]()))
-          .thenReturn(Ok(testServiceOrganisationResponseBody))
+      "must return success response when the service can retrieve a business record" in {
+        when(mockService.registerOrganisationWithId(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
 
         val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
 
-        result.toString mustBe Future.successful(Ok(testServiceOrganisationResponseBody)).toString
+        status(result)        mustBe OK
+        contentAsJson(result) mustBe Json.toJson(testServiceResponseSuccess)
+
       }
+
       "must return bad request when the request is not valid" in {
         val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(Json.toJson("invalid johnny")))
 

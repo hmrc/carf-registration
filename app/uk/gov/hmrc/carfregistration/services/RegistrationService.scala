@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.carfregistration.services
 
-import play.api.libs.json.Json
-import play.api.mvc.Result
-import play.api.mvc.Results.{InternalServerError, NotFound, Ok}
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
-import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdAPIRequest, RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdRequest, RequestCommon, RequestDetailIndividual}
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdResponse}
+import uk.gov.hmrc.carfregistration.models.requests.*
+import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{ApiError, UuidGen}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -49,16 +46,26 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
         case Left(error)     => Left(error)
       }
 
-  def returnResponseOrganisation(request: RegisterOrganisationWithIdRequest): Result =
-    request.IDNumber.take(1) match {
-      case "9" => InternalServerError("An unexpected error occurred")
-      case "8" => NotFound("The match was unsuccessful")
-      case "7" => Ok(Json.toJson(createEmptyOrganisationResponse(request)))
-      case _   => Ok(Json.toJson(createFullOrganisationResponse(request)))
-    }
+  def registerOrganisationWithId(
+      frontendOrganisationRequest: RegisterOrganisationWithIdFrontendRequest
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterOrganisationWithIdFrontendResponse]] =
+    connector
+      .organisationWithID(
+        RegisterOrganisationWithIdAPIRequest(
+          requestCommon = RequestCommon("UTR", uuidGen, clock),
+          requestDetail = RequestDetailOrganisation(frontendOrganisationRequest)
+        )
+      )
+      .value
+      .map {
+        case Right(response) => Right(RegisterOrganisationWithIdFrontendResponse(response))
+        case Left(error)     => Left(error)
+      }
 
-  def createFullOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
-    RegisterOrganisationWithIdResponse(
+  def createFullOrganisationResponse(
+      request: RegisterOrganisationWithIdFrontendRequest
+  ): RegisterOrganisationWithIdFrontendResponse =
+    RegisterOrganisationWithIdFrontendResponse(
       safeId = "test-safe-id",
       code = Some("0000"),
       organisationName = request.organisationName.getOrElse("Timmy Ltd"),
@@ -72,8 +79,10 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
       )
     )
 
-  def createEmptyOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
-    RegisterOrganisationWithIdResponse(
+  def createEmptyOrganisationResponse(
+      request: RegisterOrganisationWithIdFrontendRequest
+  ): RegisterOrganisationWithIdFrontendResponse =
+    RegisterOrganisationWithIdFrontendResponse(
       safeId = "test-safe-id",
       code = Some("0002"),
       organisationName = request.organisationName.getOrElse("Park Ltd"),
