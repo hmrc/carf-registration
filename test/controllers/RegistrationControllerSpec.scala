@@ -145,6 +145,26 @@ class RegistrationControllerSpec extends SpecBase {
 
       }
 
+      "must return not found response when the service cannot retrieve a business record" in {
+        when(mockService.registerOrganisationWithId(any())(any()))
+          .thenReturn(Future.successful(Left(NotFoundError)))
+
+        val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
+
+        status(result)        mustBe NOT_FOUND
+        contentAsString(result) must include("Could not find or create a business record for this organisation")
+      }
+
+      "must return internal server error response when the service returns an unexpected error" in {
+        when(mockService.registerOrganisationWithId(any())(any()))
+          .thenReturn(Future.successful(Left(InternalServerError)))
+
+        val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
+
+        status(result)        mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) must include("Unexpected error")
+      }
+
       "must return bad request when the request is not valid" in {
         val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(Json.toJson("invalid johnny")))
 
