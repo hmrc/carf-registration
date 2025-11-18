@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.carfregistration.services
 
-import play.api.libs.json.Json
-import play.api.mvc.Result
-import play.api.mvc.Results.{InternalServerError, NotFound, Ok}
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
-import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdAPIRequest, RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdRequest, RequestCommon, RequestDetailIndividual}
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdResponse}
+import uk.gov.hmrc.carfregistration.models.requests.*
+import uk.gov.hmrc.carfregistration.models.responses.{RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{ApiError, UuidGen}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -49,41 +46,19 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
         case Left(error)     => Left(error)
       }
 
-  def returnResponseOrganisation(request: RegisterOrganisationWithIdRequest): Result =
-    request.IDNumber.take(1) match {
-      case "9" => InternalServerError("An unexpected error occurred")
-      case "8" => NotFound("The match was unsuccessful")
-      case "7" => Ok(Json.toJson(createEmptyOrganisationResponse(request)))
-      case _   => Ok(Json.toJson(createFullOrganisationResponse(request)))
-    }
-
-  def createFullOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
-    RegisterOrganisationWithIdResponse(
-      safeId = "test-safe-id",
-      code = Some("0000"),
-      organisationName = request.organisationName.getOrElse("Timmy Ltd"),
-      address = AddressResponse(
-        addressLine1 = "6 High Street",
-        addressLine2 = Some("Birmingham"),
-        addressLine3 = Some("Nowhereshire"),
-        addressLine4 = Some("Down the road"),
-        postalCode = Some("B23 2AZ"),
-        countryCode = "GB"
+  def registerOrganisationWithId(
+      frontendOrganisationRequest: RegisterOrganisationWithIdFrontendRequest
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterOrganisationWithIdFrontendResponse]] =
+    connector
+      .organisationWithID(
+        RegisterOrganisationWithIdAPIRequest(
+          requestCommon = RequestCommon("UTR", uuidGen, clock),
+          requestDetail = RequestDetailOrganisation(frontendOrganisationRequest)
+        )
       )
-    )
-
-  def createEmptyOrganisationResponse(request: RegisterOrganisationWithIdRequest): RegisterOrganisationWithIdResponse =
-    RegisterOrganisationWithIdResponse(
-      safeId = "test-safe-id",
-      code = Some("0002"),
-      organisationName = request.organisationName.getOrElse("Park Ltd"),
-      address = AddressResponse(
-        addressLine1 = "8 High Street",
-        addressLine2 = None,
-        addressLine3 = None,
-        addressLine4 = None,
-        postalCode = None,
-        countryCode = "US"
-      )
-    )
+      .value
+      .map {
+        case Right(response) => Right(RegisterOrganisationWithIdFrontendResponse(response))
+        case Left(error)     => Left(error)
+      }
 }

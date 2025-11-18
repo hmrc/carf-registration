@@ -18,12 +18,11 @@ package uk.gov.hmrc.carfregistration.controllers
 
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.HttpEntity
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.carfregistration.controllers.actions.AuthAction
 import uk.gov.hmrc.carfregistration.models.NotFoundError
-import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdRequest}
+import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -39,7 +38,7 @@ class RegistrationController @Inject() (
 
   def registerIndividualWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
-      logger.info(s"%%% LOOK HERE (Request) %%% \n-> $request")
+      logger.debug(s" registerIndividualWithId \n-> $request")
       service.registerIndividualWithId(request).flatMap {
         case Right(response)     => Future.successful(Ok(Json.toJson(response)))
         case Left(NotFoundError) =>
@@ -51,17 +50,15 @@ class RegistrationController @Inject() (
   }
 
   def registerOrganisationWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
-    withJsonBody[RegisterOrganisationWithIdRequest] { organisationRequest =>
-      logger.info(s"LOOK HERE (Organisation Request) \n-> $organisationRequest")
-      val response = service.returnResponseOrganisation(organisationRequest)
-
-      val responseBody = response.body match {
-        case HttpEntity.Strict(data, _) => data.utf8String
-        case _                          => "[empty body]"
+    withJsonBody[RegisterOrganisationWithIdFrontendRequest] { organisationRequest =>
+      logger.debug(s" registerOrganisationWithId) \n-> $organisationRequest")
+      service.registerOrganisationWithId(organisationRequest).flatMap {
+        case Right(response)     => Future.successful(Ok(Json.toJson(response)))
+        case Left(NotFoundError) =>
+          Future.successful(NotFound("Could not find or create a business record for this organisation"))
+        case Left(_)             =>
+          Future.successful(InternalServerError("Unexpected error"))
       }
-
-      logger.info(s"LOOK HERE (Organisation Response) \n-> Status code: ${response.header.status}, Body: $responseBody")
-      Future.successful(response)
     }
   }
 
