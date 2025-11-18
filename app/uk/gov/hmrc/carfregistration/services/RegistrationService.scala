@@ -18,7 +18,7 @@ package uk.gov.hmrc.carfregistration.services
 
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
 import uk.gov.hmrc.carfregistration.models.requests.*
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
+import uk.gov.hmrc.carfregistration.models.responses.{RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{ApiError, UuidGen}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -61,38 +61,4 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
         case Right(response) => Right(RegisterOrganisationWithIdFrontendResponse(response))
         case Left(error)     => Left(error)
       }
-
-  def createFullOrganisationResponse(
-      request: RegisterOrganisationWithIdFrontendRequest
-  ): RegisterOrganisationWithIdFrontendResponse =
-    RegisterOrganisationWithIdFrontendResponse(
-      safeId = "test-safe-id",
-      code = Some("0000"),
-      organisationName = request.organisationName.getOrElse("Timmy Ltd"),
-      address = AddressResponse(
-        addressLine1 = "6 High Street",
-        addressLine2 = Some("Birmingham"),
-        addressLine3 = Some("Nowhereshire"),
-        addressLine4 = Some("Down the road"),
-        postalCode = Some("B23 2AZ"),
-        countryCode = "GB"
-      )
-    )
-
-  def createEmptyOrganisationResponse(
-      request: RegisterOrganisationWithIdFrontendRequest
-  ): RegisterOrganisationWithIdFrontendResponse =
-    RegisterOrganisationWithIdFrontendResponse(
-      safeId = "test-safe-id",
-      code = Some("0002"),
-      organisationName = request.organisationName.getOrElse("Park Ltd"),
-      address = AddressResponse(
-        addressLine1 = "8 High Street",
-        addressLine2 = None,
-        addressLine3 = None,
-        addressLine4 = None,
-        postalCode = None,
-        countryCode = "US"
-      )
-    )
 }
