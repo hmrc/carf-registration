@@ -105,36 +105,36 @@ class RegistrationServiceSpec extends SpecBase {
   }
 
   "RegistrationService" - {
-    "registerIndividualWithId" - {
+    "registerIndividualWithNino [Nino]" - {
       "must return success frontend response model when the connector returns a successful response" in {
-        when(mockConnector.individualWithNino(any())(any()))
+        when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponseIndividual))
 
-        val result = testService.registerIndividualWithId(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
 
         result mustBe Right(testFrontendResponse)
       }
       "must return not found when the connector returns a not found" in {
-        when(mockConnector.individualWithNino(any())(any()))
+        when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](NotFoundError))
 
-        val result = testService.registerIndividualWithId(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
 
         result mustBe Left(NotFoundError)
       }
       "must return an internal server error when the connector encounters an unexpected error" in {
-        when(mockConnector.individualWithNino(any())(any()))
+        when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](InternalServerError))
 
-        val result = testService.registerIndividualWithId(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
 
         result mustBe Left(InternalServerError)
       }
       "must return an json validation error when the connector cannot parse the response" in {
-        when(mockConnector.individualWithNino(any())(any()))
+        when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](JsonValidationError))
 
-        val result = testService.registerIndividualWithId(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
 
         result mustBe Left(JsonValidationError)
       }

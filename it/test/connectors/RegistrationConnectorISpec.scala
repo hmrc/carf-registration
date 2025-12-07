@@ -163,7 +163,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     )
   )
 
-  "individualWithNino" should {
+  "individualWithId [Nino]" should {
     "successfully retrieve the api response" in {
       stubFor(
         post(urlPathMatching("/dac6/dct102b/v1"))
@@ -174,7 +174,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
           )
       )
 
-      val result = connector.individualWithNino(testRequest).value.futureValue
+      val result = connector.individualWithId(testRequest).value.futureValue
 
       result mustBe Right(testApiResponseBody)
     }
@@ -189,7 +189,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
           )
       )
 
-      val result = connector.individualWithNino(testRequest).value.futureValue
+      val result = connector.individualWithId(testRequest).value.futureValue
 
       result mustBe Left(JsonValidationError)
     }
@@ -204,7 +204,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
           )
       )
 
-      val result = connector.individualWithNino(testRequest).value.futureValue
+      val result = connector.individualWithId(testRequest).value.futureValue
 
       result mustBe Left(NotFoundError)
     }
@@ -219,7 +219,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
           )
       )
 
-      val result = connector.individualWithNino(testRequest).value.futureValue
+      val result = connector.individualWithId(testRequest).value.futureValue
 
       result mustBe Left(InternalServerError)
     }

@@ -38,11 +38,24 @@ class RegistrationController @Inject() (
 
   def registerIndividualWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
-      logger.debug(s" registerIndividualWithId \n-> $request")
-      service.registerIndividualWithId(request).flatMap {
+      logger.debug(s" registerIndividualWithNino \n-> $request")
+      service.registerIndividualWithNino(request).flatMap {
         case Right(response)     => Future.successful(Ok(Json.toJson(response)))
         case Left(NotFoundError) =>
           Future.successful(NotFound("Could not find or create a business partner record for this user"))
+        case Left(_)             =>
+          Future.successful(InternalServerError("Unexpected error"))
+      }
+    }
+  }
+
+  def registerIndividualWithUtr(): Action[JsValue] = authorise(parse.json).async { implicit request =>
+    withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
+      logger.debug(s" registerIndividualWithUtr \n-> $request")
+      service.registerIndividualWithUtr(request).flatMap {
+        case Right(response)     => Future.successful(Ok(Json.toJson(response)))
+        case Left(NotFoundError) =>
+          Future.successful(NotFound("Could not find or create a Sole Trader record for this user"))
         case Left(_)             =>
           Future.successful(InternalServerError("Unexpected error"))
       }
