@@ -111,24 +111,27 @@ class RegistrationControllerSpec extends SpecBase {
     "registerIndividualWithNino" - {
       "must return success response when the service can retrieve a business partner record" in {
         when(mockService.registerIndividualWithNino(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
-        val result = testController.registerIndividualWithId()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
+        val result =
+          testController.registerIndividualWithNino()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
         status(result)        mustBe OK
         contentAsJson(result) mustBe Json.toJson(testServiceResponseSuccess)
       }
       "must return not found response when the service cannot retrieve a business partner record" in {
         when(mockService.registerIndividualWithNino(any())(any())).thenReturn(Future(Left(NotFoundError)))
-        val result = testController.registerIndividualWithId()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
+        val result =
+          testController.registerIndividualWithNino()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
         status(result)        mustBe NOT_FOUND
         contentAsString(result) must include("Could not find or create a business partner record for this user")
       }
       "must return internal server error response when the service returns an unexpected error" in {
         when(mockService.registerIndividualWithNino(any())(any())).thenReturn(Future(Left(InternalServerError)))
-        val result = testController.registerIndividualWithId()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
+        val result =
+          testController.registerIndividualWithNino()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
         status(result)        mustBe INTERNAL_SERVER_ERROR
         contentAsString(result) must include("Unexpected error")
       }
       "must return bad request when the request is not valid" in {
-        val result = testController.registerIndividualWithId()(fakeRequestWithJsonBody(Json.toJson("invalid timmy")))
+        val result = testController.registerIndividualWithNino()(fakeRequestWithJsonBody(Json.toJson("invalid timmy")))
         result.toString mustBe Future.successful(BadRequest("")).toString
       }
     }

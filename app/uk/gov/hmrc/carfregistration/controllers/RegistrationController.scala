@@ -36,7 +36,7 @@ class RegistrationController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def registerIndividualWithId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
+  def registerIndividualWithNino(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
       logger.debug(s" registerIndividualWithNino \n-> $request")
       service.registerIndividualWithNino(request).flatMap {
