@@ -26,13 +26,13 @@ import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegistrationService @Inject()(connector: RegistrationConnector, clock: Clock, uuidGen: UuidGen)(implicit
-                                                                                                      ec: ExecutionContext
+class RegistrationService @Inject() (connector: RegistrationConnector, clock: Clock, uuidGen: UuidGen)(implicit
+    ec: ExecutionContext
 ) {
 
   def registerIndividualWithNino(
-                                  frontendRequest: RegisterIndWithIdFrontendRequest
-                                )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterIndWithIdFrontendResponse]] =
+      frontendRequest: RegisterIndWithIdFrontendRequest
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterIndWithIdFrontendResponse]] =
     connector
       .individualWithId(
         RegisterIndWithIdAPIRequest(
@@ -43,12 +43,12 @@ class RegistrationService @Inject()(connector: RegistrationConnector, clock: Clo
       .value
       .map {
         case Right(response) => Right(RegisterIndWithIdFrontendResponse(response))
-        case Left(error) => Left(error)
+        case Left(error)     => Left(error)
       }
 
   def registerIndividualWithUtr(
-                                 frontendRequest: RegisterIndWithIdFrontendRequest
-                               )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterIndWithIdFrontendResponse]] =
+      frontendRequest: RegisterIndWithIdFrontendRequest
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterIndWithIdFrontendResponse]] =
     connector
       .individualWithId(
         RegisterIndWithIdAPIRequest(
@@ -59,12 +59,12 @@ class RegistrationService @Inject()(connector: RegistrationConnector, clock: Clo
       .value
       .map {
         case Right(response) => Right(RegisterIndWithIdFrontendResponse(response))
-        case Left(error) => Left(error)
+        case Left(error)     => Left(error)
       }
 
   def registerOrganisationWithId(
-                                  frontendOrganisationRequest: RegisterOrganisationWithIdFrontendRequest
-                                )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterOrganisationWithIdFrontendResponse]] =
+      frontendOrganisationRequest: RegisterOrganisationWithIdFrontendRequest
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, RegisterOrganisationWithIdFrontendResponse]] =
     connector
       .organisationWithID(
         RegisterOrganisationWithIdAPIRequest(
@@ -75,6 +75,6 @@ class RegistrationService @Inject()(connector: RegistrationConnector, clock: Clo
       .value
       .map {
         case Right(response) => Right(RegisterOrganisationWithIdFrontendResponse(response))
-        case Left(error) => Left(error)
+        case Left(error)     => Left(error)
       }
 }

@@ -19,12 +19,12 @@ package uk.gov.hmrc.carfregistration.models.requests
 import play.api.libs.json.{Json, OFormat}
 
 case class RequestDetailIndividual(
-                                    requiresNameMatch: Boolean,
-                                    IDNumber: String,
-                                    IDType: String,
-                                    individual: IndividualDetails,
-                                    isAnAgent: Boolean
-                                  )
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String,
+    individual: IndividualDetails,
+    isAnAgent: Boolean
+)
 
 object RequestDetailIndividual {
   implicit val format: OFormat[RequestDetailIndividual] = Json.format[RequestDetailIndividual]

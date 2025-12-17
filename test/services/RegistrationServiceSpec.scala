@@ -32,7 +32,7 @@ import scala.concurrent.Future
 class RegistrationServiceSpec extends SpecBase {
 
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
-  val mockUUIDGen: UuidGen = mock[UuidGen]
+  val mockUUIDGen: UuidGen                 = mock[UuidGen]
 
   val testService: RegistrationService = new RegistrationService(mockConnector, clock, mockUUIDGen)
 

@@ -28,22 +28,22 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegistrationController @Inject()(
-                                        cc: ControllerComponents,
-                                        authorise: AuthAction,
-                                        service: RegistrationService
-                                      )(implicit ec: ExecutionContext)
-  extends BackendController(cc)
+class RegistrationController @Inject() (
+    cc: ControllerComponents,
+    authorise: AuthAction,
+    service: RegistrationService
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
     with Logging {
 
   def registerIndividualWithNino(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
       logger.debug(s" registerIndividualWithNino \n-> $request")
       service.registerIndividualWithNino(request).flatMap {
-        case Right(response) => Future.successful(Ok(Json.toJson(response)))
+        case Right(response)     => Future.successful(Ok(Json.toJson(response)))
         case Left(NotFoundError) =>
           Future.successful(NotFound("Could not find or create a business partner record for this user"))
-        case Left(_) =>
+        case Left(_)             =>
           Future.successful(InternalServerError("Unexpected error"))
       }
     }
@@ -53,10 +53,10 @@ class RegistrationController @Inject()(
     withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
       logger.debug(s"registerIndividualWithUtr request = \n-> $request")
       service.registerIndividualWithUtr(request).flatMap {
-        case Right(response) => Future.successful(Ok(Json.toJson(response)))
+        case Right(response)     => Future.successful(Ok(Json.toJson(response)))
         case Left(NotFoundError) =>
           Future.successful(NotFound("Could not find or create a Sole Trader record for this user"))
-        case Left(_) =>
+        case Left(_)             =>
           Future.successful(InternalServerError("Unexpected error"))
       }
     }
@@ -66,10 +66,10 @@ class RegistrationController @Inject()(
     withJsonBody[RegisterOrganisationWithIdFrontendRequest] { organisationRequest =>
       logger.debug(s" registerOrganisationWithId request = \n-> $organisationRequest")
       service.registerOrganisationWithId(organisationRequest).flatMap {
-        case Right(response) => Future.successful(Ok(Json.toJson(response)))
+        case Right(response)     => Future.successful(Ok(Json.toJson(response)))
         case Left(NotFoundError) =>
           Future.successful(NotFound("Could not find or create a business record for this organisation"))
-        case Left(_) =>
+        case Left(_)             =>
           Future.successful(InternalServerError("Unexpected error"))
       }
     }
