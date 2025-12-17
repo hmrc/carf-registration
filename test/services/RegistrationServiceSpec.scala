@@ -21,9 +21,9 @@ import cats.data.EitherT
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
+import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
 import uk.gov.hmrc.carfregistration.models.responses.*
-import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 
 import java.util.UUID
@@ -32,7 +32,7 @@ import scala.concurrent.Future
 class RegistrationServiceSpec extends SpecBase {
 
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
-  val mockUUIDGen: UuidGen                 = mock[UuidGen]
+  val mockUUIDGen: UuidGen = mock[UuidGen]
 
   val testService: RegistrationService = new RegistrationService(mockConnector, clock, mockUUIDGen)
 
