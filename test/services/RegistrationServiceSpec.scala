@@ -36,12 +36,22 @@ class RegistrationServiceSpec extends SpecBase {
 
   val testService: RegistrationService = new RegistrationService(mockConnector, clock, mockUUIDGen)
 
-  val testFrontendRequest =
+  val testFrontendRequestWithDob =
     RegisterIndWithIdFrontendRequest(
       requiresNameMatch = true,
       IDNumber = "test-IDNumber",
       IDType = "test-Type",
-      dateOfBirth = "test-DOB",
+      dateOfBirth = Some("test-DOB"),
+      firstName = "Colin",
+      lastName = "Cranberry"
+    )
+
+  val testFrontendRequestNoDob =
+    RegisterIndWithIdFrontendRequest(
+      requiresNameMatch = true,
+      IDNumber = "test-IDNumber",
+      IDType = "test-Type",
+      dateOfBirth = None,
       firstName = "Colin",
       lastName = "Cranberry"
     )
@@ -106,28 +116,34 @@ class RegistrationServiceSpec extends SpecBase {
 
   "RegistrationService" - {
     "registerIndividualWithNino [Nino]" - {
-      "must return success frontend response model when the connector returns a successful response" in {
+      "must return success frontend response when connector returns successful response to a REQ with a Dob" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponseIndividual))
-        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequestWithDob).futureValue
+        result mustBe Right(testFrontendResponse)
+      }
+      "must return success frontend response when connector returns successful response to a REQ without a Dob" in {
+        when(mockConnector.individualWithId(any())(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponseIndividual))
+        val result = testService.registerIndividualWithNino(testFrontendRequestNoDob).futureValue
         result mustBe Right(testFrontendResponse)
       }
       "must return not found when the connector returns a not found" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](NotFoundError))
-        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequestWithDob).futureValue
         result mustBe Left(NotFoundError)
       }
       "must return an internal server error when the connector encounters an unexpected error" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](InternalServerError))
-        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequestWithDob).futureValue
         result mustBe Left(InternalServerError)
       }
       "must return an json validation error when the connector cannot parse the response" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](JsonValidationError))
-        val result = testService.registerIndividualWithNino(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithNino(testFrontendRequestWithDob).futureValue
         result mustBe Left(JsonValidationError)
       }
     }
@@ -136,25 +152,25 @@ class RegistrationServiceSpec extends SpecBase {
       "must return success frontend response model when the connector returns a successful response" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testAPIResponseIndividual))
-        val result = testService.registerIndividualWithUtr(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithUtr(testFrontendRequestWithDob).futureValue
         result mustBe Right(testFrontendResponse)
       }
       "must return not found when the connector returns a not found" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](NotFoundError))
-        val result = testService.registerIndividualWithUtr(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithUtr(testFrontendRequestWithDob).futureValue
         result mustBe Left(NotFoundError)
       }
       "must return an internal server error when the connector encounters an unexpected error" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](InternalServerError))
-        val result = testService.registerIndividualWithUtr(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithUtr(testFrontendRequestWithDob).futureValue
         result mustBe Left(InternalServerError)
       }
       "must return an json validation error when the connector cannot parse the response" in {
         when(mockConnector.individualWithId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndWithIdAPIResponse](JsonValidationError))
-        val result = testService.registerIndividualWithUtr(testFrontendRequest).futureValue
+        val result = testService.registerIndividualWithUtr(testFrontendRequestWithDob).futureValue
         result mustBe Left(JsonValidationError)
       }
     }

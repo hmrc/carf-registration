@@ -51,7 +51,8 @@ class RegistrationController @Inject() (
 
   def registerIndividualWithUtr(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegisterIndWithIdFrontendRequest] { request =>
-      logger.debug(s" registerIndividualWithUtr \n-> $request")
+      println(s" ================================zxc   registerIndividualWithUtr \n-> $request")
+      logger.debug(s" ================================zxc   registerIndividualWithUtr \n-> $request")
       service.registerIndividualWithUtr(request).flatMap {
         case Right(response)     => Future.successful(Ok(Json.toJson(response)))
         case Left(NotFoundError) =>

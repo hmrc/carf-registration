@@ -49,7 +49,7 @@ class RegistrationControllerSpec extends SpecBase {
       requiresNameMatch = true,
       IDNumber = "test-Nino",
       IDType = "NINO",
-      dateOfBirth = "test-DOB",
+      dateOfBirth = Some("test-DOB"),
       firstName = "Alex",
       lastName = "Hamilton"
     )
@@ -60,7 +60,7 @@ class RegistrationControllerSpec extends SpecBase {
       requiresNameMatch = true,
       IDNumber = "test-Utr",
       IDType = "UTR",
-      dateOfBirth = "test-DOB",
+      dateOfBirth = None,
       firstName = "Alex",
       lastName = "Hamilton"
     )

@@ -22,7 +22,7 @@ case class RegisterIndWithIdFrontendRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
     IDType: String,
-    dateOfBirth: String,
+    dateOfBirth: Option[String],
     firstName: String,
     lastName: String
 )
