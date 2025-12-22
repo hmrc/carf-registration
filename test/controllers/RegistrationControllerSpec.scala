@@ -24,7 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
-import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterIndWithNinoFrontendRequest, RegisterIndWithUtrFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
 import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{InternalServerError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
@@ -45,22 +45,21 @@ class RegistrationControllerSpec extends SpecBase {
   )
 
   val testFrontendRequestWithNinoJson: JsValue = Json.toJson(
-    RegisterIndWithIdFrontendRequest(
+    RegisterIndWithNinoFrontendRequest(
       requiresNameMatch = true,
       IDNumber = "test-Nino",
       IDType = "NINO",
-      dateOfBirth = Some("test-DOB"),
+      dateOfBirth = "test-DOB",
       firstName = "Alex",
       lastName = "Hamilton"
     )
   )
 
   val testFrontendRequestWithUtrJson: JsValue = Json.toJson(
-    RegisterIndWithIdFrontendRequest(
+    RegisterIndWithUtrFrontendRequest(
       requiresNameMatch = true,
       IDNumber = "test-Utr",
       IDType = "UTR",
-      dateOfBirth = None,
       firstName = "Alex",
       lastName = "Hamilton"
     )

@@ -35,7 +35,10 @@ object RequestDetailIndividual {
       IDNumber = frontendRequest.IDNumber,
       IDType = frontendRequest.IDType,
       individual = IndividualDetails(
-        dateOfBirth = frontendRequest.dateOfBirth,
+        dateOfBirth = frontendRequest match {
+          case RegisterIndWithNinoFrontendRequest(_, _, _, dateOfBirth, _, _) => Some(dateOfBirth)
+          case _                                                              => None
+        },
         firstName = frontendRequest.firstName,
         lastName = frontendRequest.lastName
       ),
