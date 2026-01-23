@@ -24,8 +24,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
-import uk.gov.hmrc.carfregistration.models.requests.{RegisterIndWithIdFrontendRequest, RegisterIndWithNinoFrontendRequest, RegisterIndWithUtrFrontendRequest, RegisterOrganisationWithIdFrontendRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegisterIndWithIdFrontendResponse, RegisterOrganisationWithIdFrontendResponse}
+import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdAutoMatchOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{InternalServerError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 
@@ -36,7 +36,7 @@ class RegistrationControllerSpec extends SpecBase {
   val mockService: RegistrationService       = mock[RegistrationService]
   val testController: RegistrationController = new RegistrationController(cc, fakeAuthAction, mockService)
 
-  val testServiceResponseSuccess = RegisterIndWithIdFrontendResponse(
+  val testServiceResponseSuccess = RegWithIdIndFrontendResponse(
     safeId = "test-SafeId",
     firstName = "Alex",
     lastName = "Hamilton",
@@ -45,7 +45,7 @@ class RegistrationControllerSpec extends SpecBase {
   )
 
   val testFrontendRequestWithNinoJson: JsValue = Json.toJson(
-    RegisterIndWithNinoFrontendRequest(
+    RegWithNinoIndFrontendRequest(
       requiresNameMatch = true,
       IDNumber = "test-Nino",
       IDType = "NINO",
@@ -56,7 +56,7 @@ class RegistrationControllerSpec extends SpecBase {
   )
 
   val testFrontendRequestWithUtrJson: JsValue = Json.toJson(
-    RegisterIndWithUtrFrontendRequest(
+    RegWithUtrIndFrontendRequest(
       requiresNameMatch = true,
       IDNumber = "test-Utr",
       IDType = "UTR",
@@ -75,18 +75,16 @@ class RegistrationControllerSpec extends SpecBase {
   )
 
   // automatch
-  val testOrganisationRequest: JsValue = Json.toJson(
-    RegisterOrganisationWithIdFrontendRequest(
+  val testOrganisationWithUtrAutoMatchRequest: JsValue = Json.toJson(
+    RegWithIdAutoMatchOrgFrontendRequest(
       requiresNameMatch = false,
       IDNumber = "1234567890",
-      IDType = "UTR",
-      organisationName = None,
-      organisationType = None
+      IDType = "UTR"
     )
   )
 
   val testServiceOrganisationResponseBody: JsValue = Json.toJson(
-    RegisterOrganisationWithIdFrontendResponse(
+    RegWithIdOrgFrontendResponse(
       safeId = "XW3249234924",
       code = Some("0001"),
       organisationName = "Monsters Inc",
@@ -109,21 +107,21 @@ class RegistrationControllerSpec extends SpecBase {
   "RegistrationController" - {
     "registerIndividualWithNino" - {
       "must return success response when the service can retrieve a business partner record" in {
-        when(mockService.registerIndividualWithNino(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
+        when(mockService.registerIndWithNino(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
         val result =
           testController.registerIndividualWithNino()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
         status(result)        mustBe OK
         contentAsJson(result) mustBe Json.toJson(testServiceResponseSuccess)
       }
       "must return not found response when the service cannot retrieve a business partner record" in {
-        when(mockService.registerIndividualWithNino(any())(any())).thenReturn(Future(Left(NotFoundError)))
+        when(mockService.registerIndWithNino(any())(any())).thenReturn(Future(Left(NotFoundError)))
         val result =
           testController.registerIndividualWithNino()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
         status(result)        mustBe NOT_FOUND
         contentAsString(result) must include("Could not find or create a business partner record for this user")
       }
       "must return internal server error response when the service returns an unexpected error" in {
-        when(mockService.registerIndividualWithNino(any())(any())).thenReturn(Future(Left(InternalServerError)))
+        when(mockService.registerIndWithNino(any())(any())).thenReturn(Future(Left(InternalServerError)))
         val result =
           testController.registerIndividualWithNino()(fakeRequestWithJsonBody(testFrontendRequestWithNinoJson))
         status(result)        mustBe INTERNAL_SERVER_ERROR
@@ -137,19 +135,19 @@ class RegistrationControllerSpec extends SpecBase {
 
     "registerIndividualWithUtr" - {
       "must return success response when the service can retrieve a business partner record" in {
-        when(mockService.registerIndividualWithUtr(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
+        when(mockService.registerIndWithUtr(any())(any())).thenReturn(Future(Right(testServiceResponseSuccess)))
         val result = testController.registerIndividualWithUtr()(fakeRequestWithJsonBody(testFrontendRequestWithUtrJson))
         status(result)        mustBe OK
         contentAsJson(result) mustBe Json.toJson(testServiceResponseSuccess)
       }
       "must return not found response when the service cannot retrieve a business partner record" in {
-        when(mockService.registerIndividualWithUtr(any())(any())).thenReturn(Future(Left(NotFoundError)))
+        when(mockService.registerIndWithUtr(any())(any())).thenReturn(Future(Left(NotFoundError)))
         val result = testController.registerIndividualWithUtr()(fakeRequestWithJsonBody(testFrontendRequestWithUtrJson))
         status(result)        mustBe NOT_FOUND
         contentAsString(result) must include("Could not find or create a Sole Trader record for this user")
       }
       "must return internal server error response when the service returns an unexpected error" in {
-        when(mockService.registerIndividualWithUtr(any())(any())).thenReturn(Future(Left(InternalServerError)))
+        when(mockService.registerIndWithUtr(any())(any())).thenReturn(Future(Left(InternalServerError)))
         val result = testController.registerIndividualWithUtr()(fakeRequestWithJsonBody(testFrontendRequestWithUtrJson))
         status(result)        mustBe INTERNAL_SERVER_ERROR
         contentAsString(result) must include("Unexpected error")
@@ -163,12 +161,14 @@ class RegistrationControllerSpec extends SpecBase {
     "registerOrganisationWithId" - {
       "must return success response when the service can retrieve a business record" in {
 
-        val expectedOrgResponse = testServiceOrganisationResponseBody.as[RegisterOrganisationWithIdFrontendResponse]
+        val expectedOrgResponse = testServiceOrganisationResponseBody.as[RegWithIdOrgFrontendResponse]
 
-        when(mockService.registerOrganisationWithId(any())(any()))
+        when(mockService.registerAutoMatchOrgWithId(any())(any()))
           .thenReturn(Future.successful(Right(expectedOrgResponse)))
 
-        val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
+        val result = testController.registerAutoMatchOrganisationWithId()(
+          fakeRequestWithJsonBody(testOrganisationWithUtrAutoMatchRequest)
+        )
 
         status(result) mustBe OK
 
@@ -177,27 +177,32 @@ class RegistrationControllerSpec extends SpecBase {
       }
 
       "must return not found response when the service cannot retrieve a business record" in {
-        when(mockService.registerOrganisationWithId(any())(any()))
+        when(mockService.registerAutoMatchOrgWithId(any())(any()))
           .thenReturn(Future.successful(Left(NotFoundError)))
 
-        val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
+        val result = testController.registerAutoMatchOrganisationWithId()(
+          fakeRequestWithJsonBody(testOrganisationWithUtrAutoMatchRequest)
+        )
 
         status(result)        mustBe NOT_FOUND
         contentAsString(result) must include("Could not find or create a business record for this organisation")
       }
 
       "must return internal server error response when the service returns an unexpected error" in {
-        when(mockService.registerOrganisationWithId(any())(any()))
+        when(mockService.registerAutoMatchOrgWithId(any())(any()))
           .thenReturn(Future.successful(Left(InternalServerError)))
 
-        val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(testOrganisationRequest))
+        val result = testController.registerAutoMatchOrganisationWithId()(
+          fakeRequestWithJsonBody(testOrganisationWithUtrAutoMatchRequest)
+        )
 
         status(result)        mustBe INTERNAL_SERVER_ERROR
         contentAsString(result) must include("Unexpected error")
       }
 
       "must return bad request when the request is not valid" in {
-        val result = testController.registerOrganisationWithId()(fakeRequestWithJsonBody(Json.toJson("invalid johnny")))
+        val result =
+          testController.registerAutoMatchOrganisationWithId()(fakeRequestWithJsonBody(Json.toJson("invalid johnny")))
 
         result.toString mustBe Future.successful(BadRequest("")).toString
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfregistration.models
+package uk.gov.hmrc.carfregistration.models.requests
 
-sealed trait ApiError
+import play.api.libs.json.{Json, OFormat}
 
-case object NotFoundError extends ApiError
+case class OrganisationDetails(
+    organisationName: String,
+    organisationType: String
+)
 
-case object InternalServerError extends ApiError
+object OrganisationDetails {
+  implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
+}
 
-case object JsonValidationError extends ApiError
+case class IndividualDetails(dateOfBirth: Option[String], firstName: String, lastName: String)
 
-case object MissingFieldsError extends ApiError
+object IndividualDetails {
+  implicit val format: OFormat[IndividualDetails] = Json.format[IndividualDetails]
+}
