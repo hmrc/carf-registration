@@ -29,25 +29,19 @@ case class RequestDetailIndividual(
 object RequestDetailIndividual {
   implicit val format: OFormat[RequestDetailIndividual] = Json.format[RequestDetailIndividual]
 
-  def apply(frontendRequest: RegisterIndWithIdFrontendRequest): RequestDetailIndividual =
+  def apply(frontendRequest: RegWithIdIndFrontendRequest): RequestDetailIndividual =
     RequestDetailIndividual(
       requiresNameMatch = frontendRequest.requiresNameMatch,
       IDNumber = frontendRequest.IDNumber,
       IDType = frontendRequest.IDType,
       individual = IndividualDetails(
         dateOfBirth = frontendRequest match {
-          case RegisterIndWithNinoFrontendRequest(_, _, _, dateOfBirth, _, _) => Some(dateOfBirth)
-          case _                                                              => None
+          case RegWithNinoIndFrontendRequest(_, _, _, dateOfBirth, _, _) => Some(dateOfBirth)
+          case _                                                         => None
         },
         firstName = frontendRequest.firstName,
         lastName = frontendRequest.lastName
       ),
       isAnAgent = false
     )
-}
-
-case class IndividualDetails(dateOfBirth: Option[String], firstName: String, lastName: String)
-
-object IndividualDetails {
-  implicit val format: OFormat[IndividualDetails] = Json.format[IndividualDetails]
 }
