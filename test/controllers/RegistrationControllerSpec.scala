@@ -24,7 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, status}
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
-import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdAutoMatchOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest}
 import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{InternalServerError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
@@ -72,6 +72,17 @@ class RegistrationControllerSpec extends SpecBase {
     addressLine4 = Some("Sixty Four"),
     postalCode = Some("G66 2AZ"),
     countryCode = "GB"
+  )
+
+  // user entry organisation
+  val testOrganisationWithUtrUserEntryRequest: JsValue = Json.toJson(
+    RegWithIdUserEntryOrgFrontendRequest(
+      requiresNameMatch = true,
+      IDNumber = "1234567890",
+      IDType = "UTR",
+      organisationName = "Testing Ltd",
+      organisationType = "0001"
+    )
   )
 
   // automatch
@@ -158,9 +169,56 @@ class RegistrationControllerSpec extends SpecBase {
       }
     }
 
-    "registerOrganisationWithId" - {
+    "registerUserEntryOrganisationWithId" - {
       "must return success response when the service can retrieve a business record" in {
+        val expectedOrgResponse = testServiceOrganisationResponseBody.as[RegWithIdOrgFrontendResponse]
 
+        when(mockService.registerUserEntryOrgWithId(any())(any()))
+          .thenReturn(Future.successful(Right(expectedOrgResponse)))
+
+        val result = testController.registerUserEntryOrganisationWithId()(
+          fakeRequestWithJsonBody(testOrganisationWithUtrUserEntryRequest)
+        )
+
+        status(result)        mustBe OK
+        contentAsJson(result) mustBe testServiceOrganisationResponseBody
+      }
+
+      "must return not found response when the service cannot retrieve a business record" in {
+        when(mockService.registerUserEntryOrgWithId(any())(any()))
+          .thenReturn(Future.successful(Left(NotFoundError)))
+
+        val result = testController.registerUserEntryOrganisationWithId()(
+          fakeRequestWithJsonBody(testOrganisationWithUtrUserEntryRequest)
+        )
+
+        status(result)        mustBe NOT_FOUND
+        contentAsString(result) must include("Could not find or create a business record for this organisation")
+      }
+
+      "must return internal server error response when the service returns an unexpected error" in {
+        when(mockService.registerUserEntryOrgWithId(any())(any()))
+          .thenReturn(Future.successful(Left(InternalServerError)))
+
+        val result = testController.registerUserEntryOrganisationWithId()(
+          fakeRequestWithJsonBody(testOrganisationWithUtrUserEntryRequest)
+        )
+
+        status(result)        mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) must include("Unexpected error")
+      }
+
+      "must return bad request when the request is not valid" in {
+        val result = testController.registerUserEntryOrganisationWithId()(
+          fakeRequestWithJsonBody(Json.toJson("invalid johnny"))
+        )
+
+        result.toString mustBe Future.successful(BadRequest("")).toString
+      }
+    }
+
+    "registerAutoMatchOrganisationWithId" - {
+      "must return success response when the service can retrieve a business record" in {
         val expectedOrgResponse = testServiceOrganisationResponseBody.as[RegWithIdOrgFrontendResponse]
 
         when(mockService.registerAutoMatchOrgWithId(any())(any()))
@@ -170,10 +228,8 @@ class RegistrationControllerSpec extends SpecBase {
           fakeRequestWithJsonBody(testOrganisationWithUtrAutoMatchRequest)
         )
 
-        status(result) mustBe OK
-
+        status(result)        mustBe OK
         contentAsJson(result) mustBe testServiceOrganisationResponseBody
-
       }
 
       "must return not found response when the service cannot retrieve a business record" in {
@@ -201,8 +257,9 @@ class RegistrationControllerSpec extends SpecBase {
       }
 
       "must return bad request when the request is not valid" in {
-        val result =
-          testController.registerAutoMatchOrganisationWithId()(fakeRequestWithJsonBody(Json.toJson("invalid johnny")))
+        val result = testController.registerAutoMatchOrganisationWithId()(
+          fakeRequestWithJsonBody(Json.toJson("invalid johnny"))
+        )
 
         result.toString mustBe Future.successful(BadRequest("")).toString
       }

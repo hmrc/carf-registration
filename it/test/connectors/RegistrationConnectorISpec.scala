@@ -125,7 +125,6 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     requestDetail = RequestDetailOrgUserEntry(testUserEnteredOrgWithUtrFrontendRequest)
   )
 
-
   val testOrganisationApiResponseJson: String =
     """{
     "responseCommon": {
@@ -150,7 +149,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     responseCommon = ResponseCommon(status = "OK"),
     responseDetail = ResponseDetail(
       SAFEID = "XE0000123456789",
-      organisation = Some(OrganisationResponse(organisationName = "Test Limited", code = "0001")),
+      organisation = Some(OrganisationResponse(organisationName = "Test Limited", code = Some("0001"))),
       individual = None,
       address = AddressResponse(
         addressLine1 = "123 Test Street",
