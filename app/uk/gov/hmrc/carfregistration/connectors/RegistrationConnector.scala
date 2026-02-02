@@ -63,11 +63,8 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
             Try(response.json.as[RegWithIdOrgApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
-                logger.info(
-                  s"LOOK HERE => $exception"
-                )
                 logger.warn(
-                  s"Error parsing response as RegisterOrganisationWithIDAPIResponse with endpoint: ${endpoint.toURI}"
+                  s"Error parsing response as RegWithIdOrgApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
                 )
                 Left(JsonValidationError)
             }
@@ -97,7 +94,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
               case Success(data)      => Right(data)
               case Failure(exception) =>
                 logger.warn(
-                  s"Error parsing response as RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"
+                  s"Error parsing response as RegWithIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
                 )
                 Left(JsonValidationError)
             }
