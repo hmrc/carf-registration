@@ -27,8 +27,23 @@ object OrganisationDetails {
   implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
 }
 
-case class IndividualDetails(dateOfBirth: Option[String], firstName: String, lastName: String)
+sealed trait IndividualDetails {
+  val firstName: String
+  val lastName: String
+}
 
 object IndividualDetails {
   implicit val format: OFormat[IndividualDetails] = Json.format[IndividualDetails]
+}
+
+case class IndividualDetailsWithNino(dateOfBirth: String, firstName: String, lastName: String) extends IndividualDetails
+
+object IndividualDetailsWithNino {
+  implicit val format: OFormat[IndividualDetailsWithNino] = Json.format[IndividualDetailsWithNino]
+}
+
+case class IndividualDetailsWithUtr(firstName: String, lastName: String) extends IndividualDetails
+
+object IndividualDetailsWithUtr {
+  implicit val format: OFormat[IndividualDetailsWithUtr] = Json.format[IndividualDetailsWithUtr]
 }

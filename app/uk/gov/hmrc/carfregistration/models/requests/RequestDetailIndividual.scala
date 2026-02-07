@@ -30,18 +30,16 @@ object RequestDetailIndividual {
   implicit val format: OFormat[RequestDetailIndividual] = Json.format[RequestDetailIndividual]
 
   def apply(frontendRequest: RegWithIdIndFrontendRequest): RequestDetailIndividual =
+    val indDetails: IndividualDetails = frontendRequest match {
+      case fr: RegWithNinoIndFrontendRequest => IndividualDetailsWithNino(fr.dateOfBirth, fr.firstName, fr.lastName)
+      case fr: RegWithUtrIndFrontendRequest  => IndividualDetailsWithUtr(fr.firstName, fr.lastName)
+    }
+
     RequestDetailIndividual(
       requiresNameMatch = frontendRequest.requiresNameMatch,
       IDNumber = frontendRequest.IDNumber,
       IDType = frontendRequest.IDType,
-      individual = IndividualDetails(
-        dateOfBirth = frontendRequest match {
-          case RegWithNinoIndFrontendRequest(_, _, _, dateOfBirth, _, _) => Some(dateOfBirth)
-          case _                                                         => None
-        },
-        firstName = frontendRequest.firstName,
-        lastName = frontendRequest.lastName
-      ),
+      individual = indDetails,
       isAnAgent = false
     )
 }

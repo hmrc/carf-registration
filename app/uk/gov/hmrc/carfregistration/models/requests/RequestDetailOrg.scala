@@ -29,31 +29,6 @@ object RequestDetailOrg {
   implicit val format: OFormat[RequestDetailOrg] = Json.format[RequestDetailOrg]
 }
 
-case class RequestDetailOrgSoleTrader(
-    requiresNameMatch: Boolean,
-    IDNumber: String,
-    IDType: String,
-    individual: IndividualDetails,
-    isAnAgent: Boolean
-) extends RequestDetailOrg
-
-object RequestDetailOrgSoleTrader {
-  implicit val format: OFormat[RequestDetailOrgSoleTrader] = Json.format[RequestDetailOrgSoleTrader]
-
-  def apply(frontendRequest: RegWithUtrIndFrontendRequest): RequestDetailOrgSoleTrader =
-    RequestDetailOrgSoleTrader(
-      requiresNameMatch = frontendRequest.requiresNameMatch,
-      IDNumber = frontendRequest.IDNumber,
-      IDType = frontendRequest.IDType,
-      individual = IndividualDetails(
-        dateOfBirth = None,
-        firstName = frontendRequest.firstName,
-        lastName = frontendRequest.lastName
-      ),
-      isAnAgent = false
-    )
-}
-
 case class RequestDetailOrgUserEntry(
     requiresNameMatch: Boolean,
     IDNumber: String,
