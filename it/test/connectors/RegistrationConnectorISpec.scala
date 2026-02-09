@@ -94,7 +94,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       requiresNameMatch = true,
       IDNumber = "test-IDNumber",
       IDType = "test-IDType",
-      individual = IndividualDetails(dateOfBirth = Some("test-DOB"), firstName = "Professor", lastName = "Rowan"),
+      individual = IndividualDetailsWithNino(dateOfBirth = "test-DOB", firstName = "Professor", lastName = "Rowan"),
       isAnAgent = false
     )
   )
