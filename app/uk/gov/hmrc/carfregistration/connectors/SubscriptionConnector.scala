@@ -19,7 +19,7 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.http.Status.{CREATED, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
@@ -55,14 +55,14 @@ class SubscriptionConnector @Inject() (
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK        =>
+          case response if response.status == OK || response.status == CREATED =>
             Right(response)
-          case response if response.status == NOT_FOUND =>
+          case response if response.status == NOT_FOUND                        =>
             logger.warn(
               s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(NotFoundError)
-          case response                                 =>
+          case response                                                        =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(InternalServerError)
         }
