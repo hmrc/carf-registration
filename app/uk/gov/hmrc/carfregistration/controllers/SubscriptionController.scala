@@ -42,21 +42,13 @@ class SubscriptionController @Inject() (
     with Logging {
 
   def createSubscription: Action[JsValue] = authorise(parse.json).async { implicit request =>
-
-    println(
-      s" ----------------------------------------------------Validation result: ${request.body.validate[SubscriptionRequest]}"
-    )
-
-    println(s" ----------------------------------------------------Received subscription request: ${request.body}")
     request.body
       .validate[SubscriptionRequest]
       .fold(
         invalid = _ =>
-          println(" ----------------------------------------------------Subscription request is invalid")
           Future.successful(
             BadRequest("SubscriptionRequest is invalid")
-          )
-        ,
+          ),
         valid = subscription =>
           subscriptionConnector.sendSubscriptionInformation(subscription).value.map {
             case Right(httpResponse) => convertToResult(httpResponse)
