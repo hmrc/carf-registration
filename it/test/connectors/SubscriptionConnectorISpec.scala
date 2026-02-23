@@ -39,7 +39,7 @@ class SubscriptionConnectorISpec
   val connector: SubscriptionConnector = app.injector.instanceOf[SubscriptionConnector]
 
   val exampleIndividual = Individual("John", "Doe")
-  val exampleContact    = Contact("test@example.com", Some(exampleIndividual), None, Some("1234567890"))
+  val exampleContact    = Contact("test@example.com", Some(exampleIndividual), None, Some("1234567890"), None)
 
   val testSubscriptionRequest = SubscriptionRequest(
     gbUser = true,

@@ -24,7 +24,8 @@ case class Contact(
     email: String,
     individual: Option[Individual],
     organisation: Option[Organisation],
-    phone: Option[String]
+    phone: Option[String],
+    mobile: Option[String]
 )
 
 case class SubscriptionRequest(
@@ -58,7 +59,8 @@ object Contact {
     (__ \ "email").read[String] and
       (__ \ "individual").readNullable[Individual] and
       (__ \ "organisation").readNullable[Organisation] and
-      (__ \ "phone").readNullable[String]
+      (__ \ "phone").readNullable[String] and
+      (__ \ "mobile").readNullable[String]
   )(Contact.apply _).flatMap { contact =>
     (contact.individual, contact.organisation) match {
       case (Some(_), None) | (None, Some(_)) => Reads.pure(contact)

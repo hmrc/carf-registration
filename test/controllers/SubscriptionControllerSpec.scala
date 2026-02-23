@@ -44,7 +44,8 @@ class SubscriptionControllerSpec extends SpecBase {
     email = "test@example.com",
     individual = Some(Individual("John", "Doe", None)),
     organisation = None,
-    phone = Some("1234567890")
+    phone = Some("1234567890"),
+    mobile = None
   )
 
   val testSubscriptionRequest: SubscriptionRequest = SubscriptionRequest(
