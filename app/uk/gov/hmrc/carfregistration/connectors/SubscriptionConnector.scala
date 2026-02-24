@@ -19,18 +19,20 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{CREATED, NOT_FOUND, OK}
-import play.api.libs.json.Json
+import play.api.http.Status.UNPROCESSABLE_ENTITY
+import play.api.libs.json.*
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models.requests.SubscriptionRequest
-import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetails, InternalServerError}
+import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 class SubscriptionConnector @Inject() (
     config: AppConfig,
@@ -54,18 +56,47 @@ class SubscriptionConnector @Inject() (
         .post(endpoint)
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
-        .map {
-          case response if response.status == OK || response.status == CREATED =>
-            Right(response)
-          case response if response.status == NOT_FOUND                        =>
-            logger.warn(
-              s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
-            )
-            Left(NotFoundError)
-          case response                                                        =>
-            logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
-            Left(InternalServerError)
+        .map { httpResponse =>
+          httpResponse.status match {
+            case status if is2xx(status) =>
+              Right(httpResponse)
+            case UNPROCESSABLE_ENTITY    =>
+              logDownStreamError(httpResponse.status, httpResponse.body)
+              if (isAlreadyRegistered(httpResponse.body)) {
+                logger.warn(s"Already registered. ${httpResponse.status} response status")
+                val json = Json
+                  .parse(httpResponse.body)
+                  .asOpt[JsObject]
+                  .fold(Json.obj("status" -> "already_registered"))(json =>
+                    json + ("status" -> Json.toJson("already_registered"))
+                  )
+                Right(HttpResponse(UNPROCESSABLE_ENTITY, Json.stringify(json)))
+              } else {
+                Right(httpResponse)
+              }
+            case status                  =>
+              logger.warn(s"Unexpected response: status code: $status, from endpoint: ${endpoint.toURI}")
+              logDownStreamError(status, httpResponse.body)
+              Left(InternalServerError)
+          }
         }
     }
+
+  private def logDownStreamError(status: Int, body: String): Unit = {
+    val error = Try(Json.parse(body).validate[ErrorDetails])
+    error match {
+      case Success(JsSuccess(value, _)) =>
+        logger.warn(
+          s"Error with submission: ${value.errorDetail.sourceFaultDetail.map(_.detail.mkString)}"
+        )
+      case _                            =>
+        logger.warn(s"Error with submission: $status: response is not valid JSON")
+    }
+  }
+
+  private def isAlreadyRegistered(responseBody: String): Boolean =
+    Try(Json.parse(responseBody)).toOption
+      .flatMap(json => (json \\ "errorCode").headOption.flatMap(_.asOpt[String]))
+      .contains("007")
 
 }

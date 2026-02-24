@@ -22,8 +22,7 @@ sealed trait ContactName
 
 case class Individual(
     firstName: String,
-    lastName: String,
-    middleName: Option[String] = None
+    lastName: String
 ) extends ContactName
 
 case class Organisation(name: String) extends ContactName

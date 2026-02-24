@@ -24,7 +24,6 @@ import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.Helpers.{contentAsString, status}
-import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.connectors.SubscriptionConnector
 import uk.gov.hmrc.carfregistration.controllers.SubscriptionController
 import uk.gov.hmrc.carfregistration.models.requests.{Contact, SubscriptionRequest}
@@ -36,13 +35,12 @@ import scala.concurrent.Future
 class SubscriptionControllerSpec extends SpecBase {
 
   val mockConnector: SubscriptionConnector   = mock[SubscriptionConnector]
-  val mockAppConfig: AppConfig               = mock[AppConfig]
   val testController: SubscriptionController =
-    new SubscriptionController(mockAppConfig, cc, fakeAuthAction, mockConnector)
+    new SubscriptionController(cc, fakeAuthAction, mockConnector)
 
   val testContact: Contact = Contact(
     email = "test@example.com",
-    individual = Some(Individual("John", "Doe", None)),
+    individual = Some(Individual("John", "Doe")),
     organisation = None,
     phone = Some("1234567890"),
     mobile = None
@@ -88,66 +86,50 @@ class SubscriptionControllerSpec extends SpecBase {
         contentAsString(result) mustBe testSuccessResponseBody
       }
 
-      "must return not found response when the connector returns NOT_FOUND status" in {
+      "must return internal server error when the connector returns NOT_FOUND (connector converts to Left)" in {
         when(mockConnector.sendSubscriptionInformation(any())(any()))
-          .thenReturn(
-            EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(NOT_FOUND, "Not found")
-            )
-          )
+          .thenReturn(EitherT.leftT[Future, HttpResponse](InternalServerError))
 
         val result = testController.createSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
 
-        status(result) mustBe NOT_FOUND
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
-      "must return bad request response when the connector returns BAD_REQUEST status" in {
+      "must return internal server error when the connector returns BAD_REQUEST (connector converts to Left)" in {
         when(mockConnector.sendSubscriptionInformation(any())(any()))
-          .thenReturn(
-            EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(BAD_REQUEST, "Bad request")
-            )
-          )
+          .thenReturn(EitherT.leftT[Future, HttpResponse](InternalServerError))
 
         val result = testController.createSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
 
-        status(result) mustBe BAD_REQUEST
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
-      "must return service unavailable response when the connector returns SERVICE_UNAVAILABLE status" in {
+      "must return internal server error when the connector returns SERVICE_UNAVAILABLE (connector converts to Left)" in {
         when(mockConnector.sendSubscriptionInformation(any())(any()))
-          .thenReturn(
-            EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(SERVICE_UNAVAILABLE, "Service unavailable")
-            )
-          )
+          .thenReturn(EitherT.leftT[Future, HttpResponse](InternalServerError))
 
         val result = testController.createSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
 
-        status(result) mustBe SERVICE_UNAVAILABLE
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
-      "must return forbidden response when the connector returns FORBIDDEN status" in {
+      "must return internal server error when the connector returns FORBIDDEN (connector converts to Left)" in {
         when(mockConnector.sendSubscriptionInformation(any())(any()))
-          .thenReturn(
-            EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(FORBIDDEN, "Forbidden")
-            )
-          )
+          .thenReturn(EitherT.leftT[Future, HttpResponse](InternalServerError))
 
         val result = testController.createSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
 
-        status(result) mustBe FORBIDDEN
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
       "must return unprocessable entity with already_registered status when error code returned is 007" in {
-        val alreadyRegisteredResponseBody =
-          """{"errorDetail":{"errorCode":"007","errorMessage":"Already registered"}}"""
+        val enrichedBody =
+          """{"errorDetail":{"errorCode":"007","errorMessage":"Already registered"},"status":"already_registered"}"""
 
         when(mockConnector.sendSubscriptionInformation(any())(any()))
           .thenReturn(
             EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(UNPROCESSABLE_ENTITY, alreadyRegisteredResponseBody)
+              HttpResponse(UNPROCESSABLE_ENTITY, enrichedBody)
             )
           )
 
@@ -172,19 +154,6 @@ class SubscriptionControllerSpec extends SpecBase {
 
         status(result)        mustBe UNPROCESSABLE_ENTITY
         contentAsString(result) must include("Invalid ID type")
-      }
-
-      "must return internal server error when the connector returns an unexpected status" in {
-        when(mockConnector.sendSubscriptionInformation(any())(any()))
-          .thenReturn(
-            EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(502, "Bad gateway")
-            )
-          )
-
-        val result = testController.createSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
-
-        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
       "must return internal server error when the connector returns a Left error" in {
