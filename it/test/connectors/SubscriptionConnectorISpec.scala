@@ -60,12 +60,12 @@ class SubscriptionConnectorISpec
 
   "sendSubscriptionInformation" should {
 
-    "successfully retrieve the API response for a 200 OK" in {
+    "successfully retrieve the API response for a 201 OK" in {
       stubFor(
         post(urlPathMatching("/dac6/dct102c/v1"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(201)
               .withBody(testSubscriptionResponseJson)
           )
       )

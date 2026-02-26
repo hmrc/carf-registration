@@ -25,7 +25,6 @@ import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models.requests.SubscriptionRequest
 import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetails, InternalServerError}
-import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
@@ -58,7 +57,7 @@ class SubscriptionConnector @Inject() (
         .execute[HttpResponse]
         .map { httpResponse =>
           httpResponse.status match {
-            case status if is2xx(status) =>
+            case status if status == 201 =>
               Right(httpResponse)
             case UNPROCESSABLE_ENTITY    =>
               logDownStreamError(httpResponse.status, httpResponse.body)

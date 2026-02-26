@@ -45,7 +45,8 @@ class SubscriptionController @Inject() (
           ),
         valid = subscription =>
           subscriptionConnector.sendSubscriptionInformation(subscription).value.map {
-            case Right(httpResponse) => Status(httpResponse.status)(httpResponse.body)
+            case Right(httpResponse) =>
+              Status(httpResponse.status)(httpResponse.body)
             case Left(apiError)      =>
               logger.warn(s"Error sending subscription information: $apiError")
               InternalServerError("Error sending subscription information")

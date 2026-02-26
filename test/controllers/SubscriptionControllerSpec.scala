@@ -76,13 +76,13 @@ class SubscriptionControllerSpec extends SpecBase {
         when(mockConnector.sendSubscriptionInformation(any())(any()))
           .thenReturn(
             EitherT.rightT[Future, uk.gov.hmrc.carfregistration.models.ApiError](
-              HttpResponse(OK, testSuccessResponseBody)
+              HttpResponse(CREATED, testSuccessResponseBody)
             )
           )
 
         val result = testController.createSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
 
-        status(result)          mustBe OK
+        status(result)          mustBe CREATED
         contentAsString(result) mustBe testSuccessResponseBody
       }
 
