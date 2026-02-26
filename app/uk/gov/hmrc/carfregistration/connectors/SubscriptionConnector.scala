@@ -19,7 +19,7 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.UNPROCESSABLE_ENTITY
+import play.api.http.Status.{CREATED, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.*
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
@@ -57,9 +57,9 @@ class SubscriptionConnector @Inject() (
         .execute[HttpResponse]
         .map { httpResponse =>
           httpResponse.status match {
-            case status if status == 201 =>
+            case status if status == CREATED =>
               Right(httpResponse)
-            case UNPROCESSABLE_ENTITY    =>
+            case UNPROCESSABLE_ENTITY        =>
               logDownStreamError(httpResponse.status, httpResponse.body)
               if (isAlreadyRegistered(httpResponse.body)) {
                 logger.warn(s"Already registered. ${httpResponse.status} response status")
@@ -73,7 +73,7 @@ class SubscriptionConnector @Inject() (
               } else {
                 Right(httpResponse)
               }
-            case status                  =>
+            case status                      =>
               logger.warn(s"Unexpected response: status code: $status, from endpoint: ${endpoint.toURI}")
               logDownStreamError(status, httpResponse.body)
               Left(InternalServerError)
