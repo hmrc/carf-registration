@@ -22,12 +22,15 @@ import org.mockito.Mockito.{reset, when}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
-import play.api.test.Helpers.{contentAsJson, contentAsString, status}
+import play.api.test.Helpers._
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
-import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse}
-import uk.gov.hmrc.carfregistration.models.{InternalServerError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.requests.{AddressDetailsFrontend, ContactDetailsFrontend, RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest, RegWithoutIdIndFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse, RegWithoutIdIndFrontendResponse}
+import uk.gov.hmrc.carfregistration.models.{InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+import play.api.test.FakeRequest
 
 import scala.concurrent.Future
 
@@ -262,6 +265,79 @@ class RegistrationControllerSpec extends SpecBase {
         )
 
         result.toString mustBe Future.successful(BadRequest("")).toString
+      }
+    }
+
+    "registerIndividualWithoutId" - {
+
+      val frontendRequest = RegWithoutIdIndFrontendRequest(
+        firstName = "John",
+        lastName = "Doe",
+        dateOfBirth = "1990-01-01",
+        address = AddressDetailsFrontend(
+          addressLine1 = "123 Test Street",
+          addressLine2 = Some("Flat 1"),
+          addressLine3 = None,
+          townOrCity = "France",
+          postalCode = Some("SW1A 1AA"),
+          countryCode = "FR"
+        ),
+        contactDetails = ContactDetailsFrontend(
+          emailAddress = "john.doe@example.com",
+          phoneNumber = Some("07123456789")
+        )
+      )
+
+      val request = FakeRequest(POST, "/individual-without-id")
+        .withJsonBody(Json.toJson(frontendRequest))
+
+      "must return OK when the service returns a successful response" in {
+        val apiResponse =
+          RegWithoutIdIndFrontendResponse(
+            safeId = "SAFE123456"
+          )
+
+        when(mockService.registerIndWithoutId(any())(any()))
+          .thenReturn(Future.successful(Right(apiResponse)))
+
+        val result = testController.registerIndividualWithoutId()(
+          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
+        )
+        status(result)        mustBe OK
+        contentAsJson(result) mustBe Json.toJson(apiResponse)
+      }
+
+      "must return internal server error when the service returns NotFoundError" in {
+        when(mockService.registerIndWithoutId(any())(any()))
+          .thenReturn(Future.successful(Left(NotFoundError)))
+
+        val result = testController.registerIndividualWithoutId()(
+          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
+        )
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+
+      "must return internal server error when the service returns InternalServerError" in {
+        when(mockService.registerIndWithoutId(any())(any()))
+          .thenReturn(Future.successful(Left(InternalServerError)))
+
+        val result = testController.registerIndividualWithoutId()(
+          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
+        )
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+
+      "must return internal server error when the service returns JsonValidationError" in {
+        when(mockService.registerIndWithoutId(any())(any()))
+          .thenReturn(Future.successful(Left(JsonValidationError)))
+
+        val result = testController.registerIndividualWithoutId()(
+          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
+        )
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
   }

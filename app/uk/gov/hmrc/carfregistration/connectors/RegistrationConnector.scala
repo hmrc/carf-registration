@@ -23,8 +23,8 @@ import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
-import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse}
+import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest, RegWithoutIdIndApiRequest}
+import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdIndApiResponse}
 import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -109,4 +109,40 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         }
     }
 
+  def individualWithoutId(
+      request: RegWithoutIdIndApiRequest
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegWithoutIdIndApiResponse] =
+    registerIndividualWithoutId(request, url"${config.registerWithoutIdBaseUrl}")
+
+  private def registerIndividualWithoutId(
+      request: RegWithoutIdIndApiRequest,
+      endpoint: URL
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegWithoutIdIndApiResponse] =
+    EitherT {
+      http
+        .post(endpoint)
+        .withBody(Json.toJson(request))
+        .execute[HttpResponse]
+        .map {
+          case response if response.status == OK        =>
+            Try(response.json.as[RegWithoutIdIndApiResponse]) match {
+              case Success(data)      => Right(data)
+              case Failure(exception) =>
+                logger.warn(
+                  s"Error parsing response as RegWithoutIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+                )
+                Left(JsonValidationError)
+            }
+          case response if response.status == NOT_FOUND =>
+            logger.warn(
+              s"No match could be found for this individual (without ID): status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Left(NotFoundError)
+          case response                                 =>
+            logger.warn(
+              s"Unexpected response for individualWithoutId: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Left(InternalServerError)
+        }
+    }
 }

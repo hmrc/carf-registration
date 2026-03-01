@@ -108,6 +108,20 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     countryCode = "GB"
   )
 
+  private val testAddressFrontend = AddressDetailsFrontend(
+    addressLine1 = "123 Test Street",
+    addressLine2 = Some("Flat 1"),
+    addressLine3 = None,
+    townOrCity = "France",
+    postalCode = Some("SW1A 1AA"),
+    countryCode = "FR"
+  )
+
+  private val testContactDetails = ContactDetailsFrontend(
+    emailAddress = "john.doe@example.com",
+    phoneNumber = Some("07123456789")
+  )
+  
   val testUserEnteredOrgWithUtrFrontendRequest = RegWithIdUserEntryOrgFrontendRequest(
     requiresNameMatch = false,
     IDType = "UTR",
@@ -162,6 +176,57 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     )
   )
 
+  val testWithoutIdRequest = RegWithoutIdIndApiRequest(
+    requestCommon = RequestCommon(
+      acknowledgementReference = "test-Ref",
+      receiptDate = "test-Date",
+      regime = "CARF"
+    ),
+    requestDetail = RequestDetailIndividualWithoutId(
+      individual = IndividualDetailsWithoutId(
+        firstName = "John",
+        lastName = "Doe",
+        dateOfBirth = "1990-01-01"
+      ),
+      address = testAddressFrontend,
+      contactDetails = testContactDetails
+    )
+  )
+
+  val testWithoutIdResponseJson: String =
+    """{
+      | "responseCommon": {
+      |   "status": "OK",
+      |   "processingDate": "2025-11-03"
+      | },
+      | "responseDetail": {
+      |   "SAFEID": "SAFE123456",
+      |   "address": {
+      |     "addressLine1": "123 Test Street",
+      |     "countryCode": "GB"
+      |   }
+      | }
+      |}""".stripMargin
+
+  val testWithoutIdResponseBody =
+    RegWithoutIdIndApiResponse(
+      responseCommon = ResponseCommon(status = "OK"),
+      responseDetail = ResponseDetail(
+        SAFEID = "SAFE123456",
+        address = AddressResponse(
+          addressLine1 = "123 Test Street",
+          addressLine2 = None,
+          addressLine3 = None,
+          addressLine4 = None,
+          postalCode = None,
+          countryCode = "GB"
+        ),
+        individual = None,
+        organisation = None
+      )
+    )
+
+
   "individualWithId" should {
     "successfully retrieve the api response" in {
       stubFor(
@@ -212,6 +277,49 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
           )
       )
       val result = connector.individualWithId(testRequest).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+  }
+
+  "individualWithoutId" should {
+
+    "successfully retrieve the api response" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0101/v1"))
+          .willReturn(aResponse().withStatus(OK).withBody(testWithoutIdResponseJson))
+      )
+
+      val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
+      result mustBe Right(testWithoutIdResponseBody)
+    }
+
+    "return JsonValidationError if invalid JSON returned" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0101/v1"))
+          .willReturn(aResponse().withStatus(OK).withBody("invalid-json"))
+      )
+
+      val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
+      result mustBe Left(JsonValidationError)
+    }
+
+    "return NotFoundError if 404 returned" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0101/v1"))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
+      result mustBe Left(NotFoundError)
+    }
+
+    "return InternalServerError for 500 response" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0101/v1"))
+          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+      )
+
+      val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
       result mustBe Left(InternalServerError)
     }
   }
