@@ -61,17 +61,12 @@ class SubscriptionConnector @Inject() (
               Right(httpResponse)
             case UNPROCESSABLE_ENTITY        =>
               logDownStreamError(httpResponse.status, httpResponse.body)
-              if (isAlreadyRegistered(httpResponse.body)) {
-                logger.warn(s"Already registered. ${httpResponse.status} response status")
-                val json = Json
-                  .parse(httpResponse.body)
-                  .asOpt[JsObject]
-                  .fold(Json.obj("status" -> "already_registered"))(json =>
-                    json + ("status" -> Json.toJson("already_registered"))
-                  )
-                Right(HttpResponse(UNPROCESSABLE_ENTITY, Json.stringify(json)))
-              } else {
-                Right(httpResponse)
+              isAlreadyRegistered(httpResponse.body) match {
+                case Some(json) =>
+                  logger.warn(s"Already registered. ${httpResponse.status} response status")
+                  Right(HttpResponse(UNPROCESSABLE_ENTITY, Json.stringify(json)))
+                case None       =>
+                  Right(httpResponse)
               }
             case status                      =>
               logger.warn(s"Unexpected response: status code: $status, from endpoint: ${endpoint.toURI}")
@@ -93,9 +88,14 @@ class SubscriptionConnector @Inject() (
     }
   }
 
-  private def isAlreadyRegistered(responseBody: String): Boolean =
+  private def isAlreadyRegistered(responseBody: String): Option[JsValue] =
     Try(Json.parse(responseBody)).toOption
-      .flatMap(json => (json \\ "errorCode").headOption.flatMap(_.asOpt[String]))
-      .contains("007")
+      .flatMap(_.asOpt[JsObject])
+      .flatMap { json =>
+        (json \\ "errorCode").headOption
+          .flatMap(_.asOpt[String])
+          .filter(_ == "007")
+          .map(_ => json + ("status" -> Json.toJson("already_registered")))
+      }
 
 }
