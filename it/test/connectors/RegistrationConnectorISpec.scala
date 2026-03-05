@@ -226,42 +226,6 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       )
     )
 
-  val expectedWithoutIdRequestJson = Json.parse(
-    """
-    {
-      "regWithoutIdIndApiRequest": {
-        "requestCommon": {
-          "acknowledgementReference": "test-Ref",
-          "receiptDate": "test-Date",
-          "regime": "CARF"
-        },
-        "requestDetail": {
-          "individual": {
-            "firstName": "John",
-            "lastName": "Doe",
-            "dateOfBirth": "1990-01-01"
-          },
-          "address": {
-            "addressLine1": "123 Test Street",
-            "addressLine2": "Flat 1",
-            "townOrCity": "France",
-            "postalCode": "75008",
-            "countryCode": "FR"
-          },
-          "contactDetails": {
-            "emailAddress": "john.doe@example.com",
-            "phoneNumber": "07123456789"
-          },
-          "isAnAgent": false,
-          "isAGroup": false
-        }
-      }
-    }
-  """
-  )
-
-
-
   "individualWithId" should {
     "successfully retrieve the api response" in {
       stubFor(
@@ -317,13 +281,42 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
   }
 
   "individualWithoutId" should {
-
-    val exactRequestJson = Json.prettyPrint(Json.toJson(testWithoutIdRequest))
+    
+    val expectedWithoutIdRequestJson: String =
+      """
+        |{
+        |  "requestCommon": {
+        |    "acknowledgementReference": "test-Ref",
+        |    "receiptDate": "test-Date",
+        |    "regime": "CARF"
+        |  },
+        |  "requestDetail": {
+        |    "individual": {
+        |      "firstName": "John",
+        |      "lastName": "Doe",
+        |      "dateOfBirth": "1990-01-01"
+        |    },
+        |    "address": {
+        |      "addressLine1": "123 Test Street",
+        |      "addressLine2": "Flat 1",
+        |      "townOrCity": "France",
+        |      "postalCode": "75008",
+        |      "countryCode": "FR"
+        |    },
+        |    "contactDetails": {
+        |      "emailAddress": "john.doe@example.com",
+        |      "phoneNumber": "07123456789"
+        |    },
+        |    "isAnAgent": false,
+        |    "isAGroup": false
+        |  }
+        |}
+        |""".stripMargin
 
     "successfully retrieve the api response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .withRequestBody(equalToJson(exactRequestJson))
+          .withRequestBody(equalToJson(expectedWithoutIdRequestJson))
           .willReturn(
             aResponse()
               .withStatus(OK)
