@@ -270,26 +270,30 @@ class RegistrationControllerSpec extends SpecBase {
 
     "registerIndividualWithoutId" - {
 
-      val frontendRequest = RegWithoutIdIndFrontendRequest(
-        firstName = "John",
-        lastName = "Doe",
-        dateOfBirth = "1990-01-01",
-        address = AddressDetailsFrontend(
-          addressLine1 = "123 Test Street",
-          addressLine2 = Some("Flat 1"),
-          addressLine3 = None,
-          townOrCity = "France",
-          postalCode = Some("SW1A 1AA"),
-          countryCode = "FR"
-        ),
-        contactDetails = ContactDetailsFrontend(
-          emailAddress = "john.doe@example.com",
-          phoneNumber = Some("07123456789")
-        )
-      )
+      val frontendRequestJsonStr: String =
+        """
+          |{
+          |  "firstName": "John",
+          |  "lastName": "Doe",
+          |  "dateOfBirth": "1990-01-01",
+          |  "address": {
+          |    "addressLine1": "123 Test Street",
+          |    "addressLine2": "Flat 1",
+          |    "addressLine3": null,
+          |    "townOrCity": "France",
+          |    "postalCode": "SW1A 1AA",
+          |    "countryCode": "FR"
+          |  },
+          |  "contactDetails": {
+          |    "emailAddress": "john.doe@example.com",
+          |    "phoneNumber": "07123456789"
+          |  }
+          |}
+          |""".stripMargin
 
-      val request = FakeRequest(POST, "/individual-without-id")
-        .withJsonBody(Json.toJson(frontendRequest))
+      val frontendRequestJson: JsValue = Json.parse(frontendRequestJsonStr)
+
+      val request = fakeRequestWithJsonBody(frontendRequestJson)
 
       "must return OK when the service returns a successful response" in {
         val apiResponse =
@@ -300,9 +304,8 @@ class RegistrationControllerSpec extends SpecBase {
         when(mockService.registerIndWithoutId(any())(any()))
           .thenReturn(Future.successful(Right(apiResponse)))
 
-        val result = testController.registerIndividualWithoutId()(
-          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
-        )
+        val result = testController.registerIndividualWithoutId()(request)
+
         status(result)        mustBe OK
         contentAsJson(result) mustBe Json.toJson(apiResponse)
       }
@@ -311,9 +314,7 @@ class RegistrationControllerSpec extends SpecBase {
         when(mockService.registerIndWithoutId(any())(any()))
           .thenReturn(Future.successful(Left(NotFoundError)))
 
-        val result = testController.registerIndividualWithoutId()(
-          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
-        )
+        val result = testController.registerIndividualWithoutId()(request)
 
         status(result) mustBe INTERNAL_SERVER_ERROR
       }
@@ -322,9 +323,7 @@ class RegistrationControllerSpec extends SpecBase {
         when(mockService.registerIndWithoutId(any())(any()))
           .thenReturn(Future.successful(Left(InternalServerError)))
 
-        val result = testController.registerIndividualWithoutId()(
-          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
-        )
+        val result = testController.registerIndividualWithoutId()(request)
 
         status(result) mustBe INTERNAL_SERVER_ERROR
       }
@@ -333,9 +332,7 @@ class RegistrationControllerSpec extends SpecBase {
         when(mockService.registerIndWithoutId(any())(any()))
           .thenReturn(Future.successful(Left(JsonValidationError)))
 
-        val result = testController.registerIndividualWithoutId()(
-          fakeRequestWithJsonBody(Json.toJson(frontendRequest))
-        )
+        val result = testController.registerIndividualWithoutId()(request)
 
         status(result) mustBe INTERNAL_SERVER_ERROR
       }

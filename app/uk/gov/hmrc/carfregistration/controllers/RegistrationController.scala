@@ -87,6 +87,12 @@ class RegistrationController @Inject() (
   }
 
   def registerIndividualWithoutId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
+
+    lazy val unexpectedError = {
+      logger.error("registerIndividualWithoutId - unexpected error")
+      InternalServerError("Unexpected error")
+    }
+
     withJsonBody[RegWithoutIdIndFrontendRequest] { req =>
       logger.debug(s"registerIndividualWithoutId request = \n-> $req")
       service.registerIndWithoutId(req).map {
@@ -94,19 +100,11 @@ class RegistrationController @Inject() (
 
         case Left(NotFoundError) =>
           logger.warn("registerIndividualWithoutId - NotFoundError")
-          InternalServerError("Unexpected error")
+          unexpectedError
 
-        case Left(JsonValidationError) =>
-          logger.error("registerIndividualWithoutId - JsonValidationError")
-          InternalServerError("Unexpected error")
-
-        case Left(MissingFieldsError) =>
-          logger.error("registerIndividualWithoutId - MissingFieldsError")
-          InternalServerError("Unexpected error")
-
-        case Left(_) =>
-          logger.error("RegisterWithoutId unexpected error")
-          InternalServerError("Unexpected error")
+        case Left(JsonValidationError) => unexpectedError
+        case Left(MissingFieldsError)  => unexpectedError
+        case Left(_)                   => unexpectedError
       }
     }
   }

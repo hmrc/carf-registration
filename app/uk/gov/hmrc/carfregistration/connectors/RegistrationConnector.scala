@@ -128,7 +128,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
             Try(response.json.as[RegWithoutIdIndApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
-                logger.warn(
+                logger.error(
                   s"Error parsing response as RegWithoutIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
                 )
                 Left(JsonValidationError)

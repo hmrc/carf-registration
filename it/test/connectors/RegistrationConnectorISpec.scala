@@ -16,7 +16,7 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching, equalToJson}
 import itutil.ApplicationWithWiremock
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -113,7 +113,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     addressLine2 = Some("Flat 1"),
     addressLine3 = None,
     townOrCity = "France",
-    postalCode = Some("SW1A 1AA"),
+    postalCode = Some("75008"),
     countryCode = "FR"
   )
 
@@ -226,6 +226,41 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       )
     )
 
+  val expectedWithoutIdRequestJson = Json.parse(
+    """
+    {
+      "regWithoutIdIndApiRequest": {
+        "requestCommon": {
+          "acknowledgementReference": "test-Ref",
+          "receiptDate": "test-Date",
+          "regime": "CARF"
+        },
+        "requestDetail": {
+          "individual": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "dateOfBirth": "1990-01-01"
+          },
+          "address": {
+            "addressLine1": "123 Test Street",
+            "addressLine2": "Flat 1",
+            "townOrCity": "France",
+            "postalCode": "75008",
+            "countryCode": "FR"
+          },
+          "contactDetails": {
+            "emailAddress": "john.doe@example.com",
+            "phoneNumber": "07123456789"
+          },
+          "isAnAgent": false,
+          "isAGroup": false
+        }
+      }
+    }
+  """
+  )
+
+
 
   "individualWithId" should {
     "successfully retrieve the api response" in {
@@ -283,10 +318,17 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
 
   "individualWithoutId" should {
 
+    val exactRequestJson = Json.prettyPrint(Json.toJson(testWithoutIdRequest))
+
     "successfully retrieve the api response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse().withStatus(OK).withBody(testWithoutIdResponseJson))
+          .withRequestBody(equalToJson(exactRequestJson))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(testWithoutIdResponseJson)
+          )
       )
 
       val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue

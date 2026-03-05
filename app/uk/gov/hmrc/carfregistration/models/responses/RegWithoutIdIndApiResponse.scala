@@ -23,3 +23,11 @@ case class RegWithoutIdIndApiResponse(responseCommon: ResponseCommon, responseDe
 object RegWithoutIdIndApiResponse {
   implicit val format: OFormat[RegWithoutIdIndApiResponse] = Json.format[RegWithoutIdIndApiResponse]
 }
+
+case class RegWithoutIdIndApiResponseWrapper(
+    regWithoutIdIndApiResponse: RegWithoutIdIndApiResponse
+)
+
+object RegWithoutIdIndApiResponseWrapper {
+  implicit val format: OFormat[RegWithoutIdIndApiResponseWrapper] = Json.format[RegWithoutIdIndApiResponseWrapper]
+}

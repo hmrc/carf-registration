@@ -26,3 +26,11 @@ case class RegWithoutIdIndApiRequest(
 object RegWithoutIdIndApiRequest {
   implicit val format: OFormat[RegWithoutIdIndApiRequest] = Json.format[RegWithoutIdIndApiRequest]
 }
+
+case class RegWithoutIdIndApiRequestWrapper(
+    regWithoutIdIndApiRequest: RegWithoutIdIndApiRequest
+)
+
+object RegWithoutIdIndApiRequestWrapper {
+  implicit val format: OFormat[RegWithoutIdIndApiRequestWrapper] = Json.format[RegWithoutIdIndApiRequestWrapper]
+}
