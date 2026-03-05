@@ -16,7 +16,7 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching, equalToJson}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -121,7 +121,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     emailAddress = "john.doe@example.com",
     phoneNumber = Some("07123456789")
   )
-  
+
   val testUserEnteredOrgWithUtrFrontendRequest = RegWithIdUserEntryOrgFrontendRequest(
     requiresNameMatch = false,
     IDType = "UTR",
@@ -281,7 +281,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
   }
 
   "individualWithoutId" should {
-    
+
     val expectedWithoutIdRequestJson: String =
       """
         |{
