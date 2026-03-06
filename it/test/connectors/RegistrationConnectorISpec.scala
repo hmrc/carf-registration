@@ -21,7 +21,7 @@ import itutil.ApplicationWithWiremock
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.must.Matchers.mustBe
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.Json
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
 import uk.gov.hmrc.carfregistration.models.requests.*
@@ -338,10 +338,10 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       result mustBe Left(JsonValidationError)
     }
 
-    "return NotFoundError if 404 returned" in {
+    "return NotFoundError if 422 returned" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse().withStatus(NOT_FOUND))
+          .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY))
       )
 
       val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue

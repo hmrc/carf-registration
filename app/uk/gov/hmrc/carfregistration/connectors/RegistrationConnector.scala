@@ -19,7 +19,7 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.http.Status.{NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
@@ -124,7 +124,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK        =>
+          case response if response.status == OK                   =>
             Try(response.json.as[RegWithoutIdIndApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
@@ -133,13 +133,13 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == NOT_FOUND =>
+          case response if response.status == UNPROCESSABLE_ENTITY =>
             logger.warn(
               s"No match could be found for this individual (without ID): status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(NotFoundError)
-          case response                                 =>
-            logger.warn(
+          case response                                            =>
+            logger.error(
               s"Unexpected response for individualWithoutId: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(InternalServerError)

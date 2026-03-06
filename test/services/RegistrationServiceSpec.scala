@@ -139,7 +139,7 @@ class RegistrationServiceSpec extends SpecBase {
       addressLine2 = Some("Flat 1"),
       addressLine3 = None,
       townOrCity = "France",
-      postalCode = Some("SW1A 1AA"),
+      postalCode = Some("75008"),
       countryCode = "FR"
     ),
     contactDetails = ContactDetailsFrontend(
