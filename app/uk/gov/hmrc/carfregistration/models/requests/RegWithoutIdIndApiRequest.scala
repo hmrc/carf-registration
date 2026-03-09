@@ -28,7 +28,7 @@ object RegWithoutIdIndApiRequest {
 }
 
 case class RegWithoutIdIndApiRequestWrapper(
-    regWithoutIdIndApiRequest: RegWithoutIdIndApiRequest
+    registerWithoutIDRequest: RegWithoutIdIndApiRequest
 )
 
 object RegWithoutIdIndApiRequestWrapper {
