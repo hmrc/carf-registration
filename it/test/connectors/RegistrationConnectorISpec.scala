@@ -194,19 +194,23 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
   )
 
   val testWithoutIdResponseJson: String =
-    """{
-      | "responseCommon": {
-      |   "status": "OK",
-      |   "processingDate": "2025-11-03"
-      | },
-      | "responseDetail": {
-      |   "SAFEID": "SAFE123456",
-      |   "address": {
-      |     "addressLine1": "123 Test Street",
-      |     "countryCode": "GB"
+    """
+      |{
+      | "regWithoutIdIndApiResponse": {
+      |   "responseCommon": {
+      |     "status": "OK",
+      |     "processingDate": "2025-11-03"
+      |   },
+      |   "responseDetail": {
+      |     "SAFEID": "SAFE123456",
+      |     "address": {
+      |       "addressLine1": "123 Test Street",
+      |       "countryCode": "GB"
+      |     }
       |   }
       | }
-      |}""".stripMargin
+      |}
+      |""".stripMargin
 
   val testWithoutIdResponseBody =
     RegWithoutIdIndApiResponse(
@@ -345,7 +349,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       )
 
       val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
-      result mustBe Left(NotFoundError)
+      result mustBe Left(InternalServerError)
     }
 
     "return InternalServerError for 500 response" in {

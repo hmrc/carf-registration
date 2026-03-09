@@ -24,7 +24,7 @@ import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest, RegWithoutIdIndApiRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdIndApiResponse}
+import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdIndApiResponse, RegWithoutIdIndApiResponseWrapper}
 import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -125,19 +125,19 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .execute[HttpResponse]
         .map {
           case response if response.status == OK                   =>
-            Try(response.json.as[RegWithoutIdIndApiResponse]) match {
-              case Success(data)      => Right(data)
+            Try(response.json.as[RegWithoutIdIndApiResponseWrapper]) match {
+              case Success(wrapper)   => Right(wrapper.regWithoutIdIndApiResponse)
               case Failure(exception) =>
                 logger.error(
-                  s"Error parsing response as RegWithoutIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+                  s"Error parsing response as RegWithoutIdIndApiResponseWrapper. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
                 )
                 Left(JsonValidationError)
             }
           case response if response.status == UNPROCESSABLE_ENTITY =>
             logger.warn(
-              s"No match could be found for this individual (without ID): status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              s"422 returned from backend for individualWithoutId: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
-            Left(NotFoundError)
+            Left(InternalServerError)
           case response                                            =>
             logger.error(
               s"Unexpected response for individualWithoutId: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
