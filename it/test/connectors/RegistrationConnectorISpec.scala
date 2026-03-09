@@ -196,37 +196,20 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
   val testWithoutIdResponseJson: String =
     """
       |{
-      | "regWithoutIdIndApiResponse": {
-      |   "responseCommon": {
-      |     "status": "OK",
-      |     "processingDate": "2025-11-03"
-      |   },
-      |   "responseDetail": {
-      |     "SAFEID": "SAFE123456",
-      |     "address": {
-      |       "addressLine1": "123 Test Street",
-      |       "countryCode": "GB"
-      |     }
-      |   }
-      | }
+      |  "responseCommon": {
+      |    "status": "OK"
+      |  },
+      |  "responseDetail": {
+      |    "SAFEID": "SAFE123456"
+      |  }
       |}
       |""".stripMargin
 
   val testWithoutIdResponseBody =
     RegWithoutIdIndApiResponse(
       responseCommon = ResponseCommon(status = "OK"),
-      responseDetail = ResponseDetail(
-        SAFEID = "SAFE123456",
-        address = AddressResponse(
-          addressLine1 = "123 Test Street",
-          addressLine2 = None,
-          addressLine3 = None,
-          addressLine4 = None,
-          postalCode = None,
-          countryCode = "GB"
-        ),
-        individual = None,
-        organisation = None
+      responseDetail = RegWithoutIdIndApiResponseDetail(
+        SAFEID = "SAFE123456"
       )
     )
 
@@ -288,39 +271,41 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
 
     val expectedWithoutIdRequestJson: String =
       """
-        |{
-        |  "requestCommon": {
-        |    "acknowledgementReference": "test-Ref",
-        |    "receiptDate": "test-Date",
-        |    "regime": "CARF"
-        |  },
-        |  "requestDetail": {
-        |    "individual": {
-        |      "firstName": "John",
-        |      "lastName": "Doe",
-        |      "dateOfBirth": "1990-01-01"
-        |    },
-        |    "address": {
-        |      "addressLine1": "123 Test Street",
-        |      "addressLine2": "Flat 1",
-        |      "townOrCity": "France",
-        |      "postalCode": "75008",
-        |      "countryCode": "FR"
-        |    },
-        |    "contactDetails": {
-        |      "emailAddress": "john.doe@example.com",
-        |      "phoneNumber": "07123456789"
-        |    },
-        |    "isAnAgent": false,
-        |    "isAGroup": false
-        |  }
-        |}
-        |""".stripMargin
+      {
+        "registerWithoutIDRequest": {
+          "requestCommon": {
+            "acknowledgementReference": "test-Ref",
+            "receiptDate": "test-Date",
+            "regime": "CARF"
+          },
+          "requestDetail": {
+            "individual": {
+              "firstName": "John",
+              "lastName": "Doe",
+              "dateOfBirth": "1990-01-01"
+            },
+            "address": {
+              "addressLine1": "123 Test Street",
+              "addressLine2": "Flat 1",
+              "townOrCity": "France",
+              "postalCode": "75008",
+              "countryCode": "FR"
+            },
+            "contactDetails": {
+              "emailAddress": "john.doe@example.com",
+              "phoneNumber": "07123456789"
+            },
+            "isAnAgent": false,
+            "isAGroup": false
+          }
+        }
+      }
+      """.stripMargin
 
     "successfully retrieve the api response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .withRequestBody(equalToJson(expectedWithoutIdRequestJson))
+          .withRequestBody(equalToJson(expectedWithoutIdRequestJson, true , true))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -329,7 +314,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       )
 
       val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
-      result mustBe Right(testWithoutIdResponseBody)
+      result mustBe Right(RegWithoutIdIndApiResponse(ResponseCommon("OK"), RegWithoutIdIndApiResponseDetail("SAFE123456")))
     }
 
     "return JsonValidationError if invalid JSON returned" in {

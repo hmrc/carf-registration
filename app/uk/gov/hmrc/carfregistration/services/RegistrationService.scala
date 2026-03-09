@@ -112,7 +112,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     )
 
     connector.individualWithoutId(apiRequest).value.map {
-      case Right(apiResponse) => Right(RegWithoutIdIndFrontendResponse(apiResponse))
+      case Right(apiResponse) => Right(RegWithoutIdIndFrontendResponse(apiResponse.responseDetail.SAFEID))
       case Left(error)        => Left(error)
     }
   }

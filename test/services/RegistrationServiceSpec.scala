@@ -306,17 +306,7 @@ class RegistrationServiceSpec extends SpecBase {
         val apiResponse = RegWithoutIdIndApiResponse(
           responseCommon = ResponseCommon(status = "OK"),
           responseDetail = RegWithoutIdIndApiResponseDetail(
-            SAFEID = "SAFE123456",
-            address = AddressResponse(
-              addressLine1 = "123 Test Street",
-              addressLine2 = Some("Flat 1"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("SW1A 1AA"),
-              countryCode = "FR"
-            ),
-            individual = None,
-            organisation = None
+            SAFEID = "SAFE123456"
           )
         )
 
@@ -325,7 +315,7 @@ class RegistrationServiceSpec extends SpecBase {
 
         val result = testService.registerIndWithoutId(frontendRequest).futureValue
 
-        result shouldBe Right(RegWithoutIdIndFrontendResponse(apiResponse))
+        result mustBe Right(RegWithoutIdIndFrontendResponse("SAFE123456"))
       }
 
       "return error when connector returns an error" in {
