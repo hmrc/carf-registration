@@ -19,7 +19,7 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{NOT_FOUND, OK, UNPROCESSABLE_ENTITY, SERVICE_UNAVAILABLE, METHOD_NOT_ALLOWED, BAD_REQUEST, FORBIDDEN,INTERNAL_SERVER_ERROR}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, METHOD_NOT_ALLOWED, NOT_FOUND, OK, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
