@@ -19,7 +19,7 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.{NOT_FOUND, OK, UNPROCESSABLE_ENTITY, SERVICE_UNAVAILABLE, METHOD_NOT_ALLOWED, BAD_REQUEST, FORBIDDEN,INTERNAL_SERVER_ERROR}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
@@ -119,38 +119,73 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
       endpoint: URL
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegWithoutIdIndApiResponse] =
     EitherT {
+
       val wrappedRequest = RegWithoutIdIndApiRequestWrapper(registerWithoutIDRequest = request)
-      logger.info(s"Sending wrapped request to stub: ${Json.prettyPrint(Json.toJson(wrappedRequest))}")
+
+      logger.debug(s"[RegistrationConnector] Calling individualWithoutId endpoint: ${endpoint.toURI}")
+
       http
         .post(endpoint)
         .withBody(Json.toJson(wrappedRequest))
         .execute[HttpResponse]
         .map { response =>
+
+          def extractSourceFaultDetail(resp: HttpResponse): Option[String] =
+            scala.util
+              .Try(resp.json)
+              .toOption
+              .flatMap(js => (js \ "errorDetail" \ "sourceFaultDetail" \ "detail").asOpt[Seq[String]])
+              .map(_.mkString(" | "))
+
           response.status match {
+
             case OK =>
               Try(response.json.as[RegWithoutIdIndApiResponseWrapper]) match {
+
                 case Success(wrapper) =>
                   Right(wrapper.regWithoutIdIndApiResponse)
-                case Failure(_)       =>
+
+                case Failure(_) =>
                   Try(response.json.as[RegWithoutIdIndApiResponse]) match {
-                    case Success(plainResponse) => Right(plainResponse)
-                    case Failure(exception)     =>
+
+                    case Success(plainResponse) =>
+                      Right(plainResponse)
+
+                    case Failure(exception) =>
                       logger.error(
-                        s"Error parsing response as RegWithoutIdIndApiResponse or wrapper. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+                        s"[RegistrationConnector] Failed to parse response for individualWithoutId from ${endpoint.toURI}. " +
+                          s"Exception: ${exception.getMessage}"
                       )
                       Left(JsonValidationError)
                   }
               }
 
-            case UNPROCESSABLE_ENTITY =>
+            case BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE =>
+              val detail = extractSourceFaultDetail(response)
+
+              detail match {
+                case Some(d) =>
+                  logger.warn(
+                    s"[RegistrationConnector] Upstream error ${response.status} from ${endpoint.toURI}. " +
+                      s"sourceFaultDetail.detail=[$d]"
+                  )
+                case None    =>
+                  logger.warn(
+                    s"[RegistrationConnector] Upstream error ${response.status} from ${endpoint.toURI}"
+                  )
+              }
+
+              Left(InternalServerError)
+
+            case FORBIDDEN | METHOD_NOT_ALLOWED =>
               logger.warn(
-                s"422 returned from backend for individualWithoutId: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+                s"[RegistrationConnector] HTTP ${response.status} returned from ${endpoint.toURI}"
               )
               Left(InternalServerError)
 
             case other =>
               logger.error(
-                s"Unexpected response for individualWithoutId: status code: $other, from endpoint: ${endpoint.toURI}"
+                s"[RegistrationConnector] Unexpected response $other from ${endpoint.toURI}"
               )
               Left(InternalServerError)
           }

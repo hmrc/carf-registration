@@ -327,7 +327,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       result mustBe Left(JsonValidationError)
     }
 
-    "return NotFoundError if 422 returned" in {
+    "return InternalServerError if 422 returned" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
           .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY))
