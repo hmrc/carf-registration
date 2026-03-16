@@ -19,17 +19,13 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.http.Status.*
 import play.api.libs.json.Json
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, METHOD_NOT_ALLOWED, NOT_FOUND, OK, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
-import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
-import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse}
-import uk.gov.hmrc.carfregistration.models.responses.errors.ErrorResponse
 import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest, RegWithoutIdIndApiRequest, RegWithoutIdIndApiRequestWrapper}
 import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdIndApiResponse, RegWithoutIdIndApiResponseWrapper}
-import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetails, InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
@@ -218,7 +214,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         }
     }
   private def errorParse(response: HttpResponse, endpoint: URL): ApiError =
-    Try(response.json.as[ErrorResponse]) match {
+    Try(response.json.as[ErrorDetails]) match {
       case Success(error)     => error
       case Failure(exception) =>
         logger.warn(
