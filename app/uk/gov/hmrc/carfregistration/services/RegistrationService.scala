@@ -36,8 +36,10 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .individualWithId(
         RegWithIdIndApiRequest(
-          requestCommon = RequestCommon("NINO", uuidGen, clock),
-          requestDetail = RequestDetailIndividual(frontendRequest)
+          RegisterWithIdRequestInd(
+            requestCommon = RequestCommon("NINO", uuidGen, clock),
+            requestDetail = RequestDetailIndividual(frontendRequest)
+          )
         )
       )
       .value
@@ -52,8 +54,10 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .individualWithId(
         RegWithIdIndApiRequest(
-          requestCommon = RequestCommon("UTR", uuidGen, clock),
-          requestDetail = RequestDetailIndividual(frontendRequest)
+          RegisterWithIdRequestInd(
+            requestCommon = RequestCommon("UTR", uuidGen, clock),
+            requestDetail = RequestDetailIndividual(frontendRequest)
+          )
         )
       )
       .value
@@ -68,8 +72,10 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .organisationWithID(
         RegWithIdOrgApiRequest(
-          requestCommon = RequestCommon("UTR", uuidGen, clock),
-          requestDetail = RequestDetailOrgUserEntry(frontendRequest)
+          RegisterWithIdRequestOrg(
+            requestCommon = RequestCommon("UTR", uuidGen, clock),
+            requestDetail = RequestDetailOrgUserEntry(frontendRequest)
+          )
         )
       )
       .value
@@ -84,8 +90,10 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .organisationWithID(
         RegWithIdOrgApiRequest(
-          requestCommon = RequestCommon("UTR", uuidGen, clock),
-          requestDetail = RequestDetailOrgCtAutoMatch(frontendRequest)
+          RegisterWithIdRequestOrg(
+            requestCommon = RequestCommon("UTR", uuidGen, clock),
+            requestDetail = RequestDetailOrgCtAutoMatch(frontendRequest)
+          )
         )
       )
       .value

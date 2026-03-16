@@ -19,12 +19,13 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest}
 import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse}
+import uk.gov.hmrc.carfregistration.models.responses.errors.ErrorResponse
 import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -59,7 +60,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK        =>
+          case response if response.status == OK                    =>
             Try(response.json.as[RegWithIdOrgApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
@@ -68,12 +69,23 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == NOT_FOUND =>
+          case response if response.status == BAD_REQUEST           =>
+            logger.warn(s"Invalid request: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+            Left(errorParse(response, endpoint))
+          case response if response.status == UNPROCESSABLE_ENTITY  =>
+            logger.warn(
+              s"Unprocessable entity in request: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Left(errorParse(response, endpoint))
+          case response if response.status == INTERNAL_SERVER_ERROR =>
+            logger.warn(s"Unexpected server error: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+            Left(errorParse(response, endpoint))
+          case response if response.status == NOT_FOUND             =>
             logger.warn(
               s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(NotFoundError)
-          case response                                 =>
+          case response                                             =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(InternalServerError)
         }
@@ -89,7 +101,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK        =>
+          case response if response.status == OK                    =>
             Try(response.json.as[RegWithIdIndApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
@@ -98,15 +110,35 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == NOT_FOUND =>
+          case response if response.status == BAD_REQUEST           =>
+            logger.warn(s"Invalid request: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+            Left(errorParse(response, endpoint))
+          case response if response.status == UNPROCESSABLE_ENTITY  =>
+            logger.warn(
+              s"Unprocessable entity in request: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Left(errorParse(response, endpoint))
+          case response if response.status == INTERNAL_SERVER_ERROR =>
+            logger.warn(s"Unexpected server error: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+            Left(errorParse(response, endpoint))
+          case response if response.status == NOT_FOUND             =>
             logger.warn(
               s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(NotFoundError)
-          case response                                 =>
+          case response                                             =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(InternalServerError)
         }
     }
 
+  private def errorParse(response: HttpResponse, endpoint: URL): ApiError =
+    Try(response.json.as[ErrorResponse]) match {
+      case Success(error)     => error
+      case Failure(exception) =>
+        logger.warn(
+          s"Error parsing response as ErrorResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+        )
+        JsonValidationError
+    }
 }

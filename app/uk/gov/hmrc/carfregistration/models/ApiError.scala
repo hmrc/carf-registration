@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.carfregistration.models
 
-sealed trait ApiError
+trait ApiError
 
 case object NotFoundError extends ApiError
 

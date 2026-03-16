@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfregistration.models.requests
+package uk.gov.hmrc.carfregistration.models.responses.errors
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterWithIdRequestInd(requestCommon: RequestCommon, requestDetail: RequestDetailIndividual)
+case class SourceFaultDetail(detail: List[String])
 
-object RegisterWithIdRequestInd {
-  implicit val format: OFormat[RegisterWithIdRequestInd] = Json.format[RegisterWithIdRequestInd]
-}
-
-case class RegWithIdIndApiRequest(registerWithIdRequest: RegisterWithIdRequestInd)
-
-object RegWithIdIndApiRequest {
-  implicit val format: OFormat[RegWithIdIndApiRequest] = Json.format[RegWithIdIndApiRequest]
+object SourceFaultDetail {
+  implicit val format: OFormat[SourceFaultDetail] = Json.format[SourceFaultDetail]
 }
