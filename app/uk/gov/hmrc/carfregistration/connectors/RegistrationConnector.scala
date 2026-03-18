@@ -74,7 +74,6 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 Left(JsonValidationError)
             }
           case response if response.status == BAD_REQUEST           =>
-            logger.warn(s"A1234: ${response.body}")
             logger.warn(s"Invalid request: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
 
             Left(errorParse(response, endpoint))
@@ -117,7 +116,6 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 Left(JsonValidationError)
             }
           case response if response.status == BAD_REQUEST           =>
-            logger.warn(s"A1234: ${Json.toJson(request)}")
             logger.warn(s"Invalid request: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(errorParse(response, endpoint))
           case response if response.status == UNPROCESSABLE_ENTITY  =>
