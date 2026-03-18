@@ -36,8 +36,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .individualWithId(
         RegWithIdIndApiRequest(
-          RegisterWithIdRequestInd(
-            requestCommon = RequestCommon("NINO", uuidGen, clock),
+          registerWithIDRequest = RegisterWithIdRequestInd(
+            requestCommon = RequestCommon("CARF", uuidGen, clock),
             requestDetail = RequestDetailIndividual(frontendRequest)
           )
         )
@@ -54,8 +54,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .individualWithId(
         RegWithIdIndApiRequest(
-          RegisterWithIdRequestInd(
-            requestCommon = RequestCommon("UTR", uuidGen, clock),
+          registerWithIDRequest = RegisterWithIdRequestInd(
+            requestCommon = RequestCommon("CARF", uuidGen, clock),
             requestDetail = RequestDetailIndividual(frontendRequest)
           )
         )
@@ -72,8 +72,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .organisationWithID(
         RegWithIdOrgApiRequest(
-          RegisterWithIdRequestOrg(
-            requestCommon = RequestCommon("UTR", uuidGen, clock),
+          registerWithIDRequest = RegisterWithIdRequestOrg(
+            requestCommon = RequestCommon("CARF", uuidGen, clock),
             requestDetail = RequestDetailOrgUserEntry(frontendRequest)
           )
         )
@@ -90,8 +90,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector, clock: Cl
     connector
       .organisationWithID(
         RegWithIdOrgApiRequest(
-          RegisterWithIdRequestOrg(
-            requestCommon = RequestCommon("UTR", uuidGen, clock),
+          registerWithIDRequest = RegisterWithIdRequestOrg(
+            requestCommon = RequestCommon("CARF", uuidGen, clock),
             requestDetail = RequestDetailOrgCtAutoMatch(frontendRequest)
           )
         )

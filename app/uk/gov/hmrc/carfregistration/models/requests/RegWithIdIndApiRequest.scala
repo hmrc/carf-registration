@@ -24,7 +24,7 @@ object RegisterWithIdRequestInd {
   implicit val format: OFormat[RegisterWithIdRequestInd] = Json.format[RegisterWithIdRequestInd]
 }
 
-case class RegWithIdIndApiRequest(registerWithIdRequest: RegisterWithIdRequestInd)
+case class RegWithIdIndApiRequest(registerWithIDRequest: RegisterWithIdRequestInd)
 
 object RegWithIdIndApiRequest {
   implicit val format: OFormat[RegWithIdIndApiRequest] = Json.format[RegWithIdIndApiRequest]

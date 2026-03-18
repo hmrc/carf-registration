@@ -74,7 +74,9 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 Left(JsonValidationError)
             }
           case response if response.status == BAD_REQUEST           =>
+            logger.warn(s"A1234: ${response.body}")
             logger.warn(s"Invalid request: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+
             Left(errorParse(response, endpoint))
           case response if response.status == UNPROCESSABLE_ENTITY  =>
             logger.warn(
@@ -115,6 +117,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 Left(JsonValidationError)
             }
           case response if response.status == BAD_REQUEST           =>
+            logger.warn(s"A1234: ${Json.toJson(request)}")
             logger.warn(s"Invalid request: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(errorParse(response, endpoint))
           case response if response.status == UNPROCESSABLE_ENTITY  =>
@@ -213,12 +216,13 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
           }
         }
     }
+
   private def errorParse(response: HttpResponse, endpoint: URL): ApiError =
     Try(response.json.as[ErrorDetails]) match {
       case Success(error)     => error
       case Failure(exception) =>
         logger.warn(
-          s"Error parsing response as ErrorResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+          s"Error parsing response as ErrorDetails. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
         )
         JsonValidationError
     }
