@@ -145,7 +145,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     )
   )
 
-  val testRequest = RegWithIdIndApiRequest(registerWithIdRequest = testRegisterWithIdRequestInd)
+  val testRequest = RegWithIdIndApiRequest(registerWithIDRequest = testRegisterWithIdRequestInd)
 
   private def testAddressResponse = AddressResponse(
     addressLine1 = "64",
@@ -187,7 +187,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     requestDetail = RequestDetailOrgUserEntry(testUserEnteredOrgWithUtrFrontendRequest)
   )
 
-  val testOrganisationApiRequest = RegWithIdOrgApiRequest(registerWithIdRequest = testRegisterWithIdRequestOrg)
+  val testOrganisationApiRequest = RegWithIdOrgApiRequest(registerWithIDRequest = testRegisterWithIdRequestOrg)
 
   val testOrganisationApiResponseJson: String =
     """{
