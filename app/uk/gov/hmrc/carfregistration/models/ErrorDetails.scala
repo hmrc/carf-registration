@@ -24,7 +24,7 @@ object SourceFaultDetail {
   implicit val format: OFormat[SourceFaultDetail] = Json.format[SourceFaultDetail]
 }
 
-case class ErrorDetail(
+case class ErrorDetails(
     timestamp: String,
     correlationId: String,
     errorCode: Option[String],
@@ -33,12 +33,12 @@ case class ErrorDetail(
     sourceFaultDetail: Option[SourceFaultDetail]
 )
 
-object ErrorDetail {
-  implicit val format: OFormat[ErrorDetail] = Json.format[ErrorDetail]
-}
-
-case class ErrorDetails(errorDetail: ErrorDetail) extends ApiError
-
 object ErrorDetails {
   implicit val format: OFormat[ErrorDetails] = Json.format[ErrorDetails]
+}
+
+case class ErrorDetail(errorDetail: ErrorDetails)
+
+object ErrorDetail {
+  implicit val format: OFormat[ErrorDetail] = Json.format[ErrorDetail]
 }
