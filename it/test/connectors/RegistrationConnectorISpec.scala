@@ -310,6 +310,19 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       val result = connector.individualWithId(testRequest).value.futureValue
       result mustBe Left(InternalServerError)
     }
+
+    "return an error response if 503 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0102/v1"))
+          .willReturn(
+            aResponse()
+              .withStatus(SERVICE_UNAVAILABLE)
+              .withBody(testApiErrorDetailResponseJson)
+          )
+      )
+      val result = connector.individualWithId(testRequest).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
   }
 
   "individualWithoutId" should {
@@ -471,6 +484,19 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(testApiErrorDetailResponseJson)
+          )
+      )
+      val result = connector.individualWithId(testRequest).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return an error response if 503 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0102/v1"))
+          .willReturn(
+            aResponse()
+              .withStatus(SERVICE_UNAVAILABLE)
               .withBody(testApiErrorDetailResponseJson)
           )
       )
