@@ -73,7 +73,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR) =>
+          case response if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
             Left(errorParse(response, endpoint))
           case response if response.status == NOT_FOUND                                                    =>
             logger.warn(
@@ -105,7 +105,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR) =>
+          case response if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
             Left(errorParse(response, endpoint))
           case response if response.status == NOT_FOUND                                                    =>
             logger.warn(
