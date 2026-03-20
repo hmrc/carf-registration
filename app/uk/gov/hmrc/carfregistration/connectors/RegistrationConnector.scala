@@ -64,7 +64,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK                                                           =>
+          case response if response.status == OK        =>
             Try(response.json.as[RegWithIdOrgApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
@@ -73,14 +73,15 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
+          case response
+              if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
             Left(errorParse(response, endpoint))
-          case response if response.status == NOT_FOUND                                                    =>
+          case response if response.status == NOT_FOUND =>
             logger.warn(
               s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(NotFoundError)
-          case response                                                                                    =>
+          case response                                 =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(InternalServerError)
         }
@@ -96,7 +97,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK                                                           =>
+          case response if response.status == OK        =>
             Try(response.json.as[RegWithIdIndApiResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
@@ -105,14 +106,15 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                 )
                 Left(JsonValidationError)
             }
-          case response if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
+          case response
+              if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
             Left(errorParse(response, endpoint))
-          case response if response.status == NOT_FOUND                                                    =>
+          case response if response.status == NOT_FOUND =>
             logger.warn(
               s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(NotFoundError)
-          case response                                                                                    =>
+          case response                                 =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Left(InternalServerError)
         }
