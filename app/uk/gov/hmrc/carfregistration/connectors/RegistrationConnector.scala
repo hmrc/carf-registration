@@ -63,27 +63,28 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .post(endpoint)
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
-        .map {
-          case response if response.status == OK        =>
-            Try(response.json.as[RegWithIdOrgApiResponse]) match {
-              case Success(data)      => Right(data)
-              case Failure(exception) =>
-                logger.warn(
-                  s"Error parsing response as RegWithIdOrgApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
-                )
-                Left(JsonValidationError)
-            }
-          case response
-              if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
-            Left(errorParse(response, endpoint))
-          case response if response.status == NOT_FOUND =>
-            logger.warn(
-              s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
-            )
-            Left(NotFoundError)
-          case response                                 =>
-            logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
-            Left(InternalServerError)
+        .map { response =>
+          response.status match {
+            case OK                                                                               =>
+              Try(response.json.as[RegWithIdOrgApiResponse]) match {
+                case Success(data)      => Right(data)
+                case Failure(exception) =>
+                  logger.warn(
+                    s"Error parsing response as RegWithIdOrgApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+                  )
+                  Left(JsonValidationError)
+              }
+            case BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE =>
+              Left(errorParse(response, endpoint))
+            case NOT_FOUND                                                                        =>
+              logger.warn(
+                s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              )
+              Left(NotFoundError)
+            case _                                                                                =>
+              logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+              Left(InternalServerError)
+          }
         }
     }
 
@@ -96,27 +97,28 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .post(endpoint)
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
-        .map {
-          case response if response.status == OK        =>
-            Try(response.json.as[RegWithIdIndApiResponse]) match {
-              case Success(data)      => Right(data)
-              case Failure(exception) =>
-                logger.warn(
-                  s"Error parsing response as RegWithIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
-                )
-                Left(JsonValidationError)
-            }
-          case response
-              if response.status == (BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE) =>
-            Left(errorParse(response, endpoint))
-          case response if response.status == NOT_FOUND =>
-            logger.warn(
-              s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
-            )
-            Left(NotFoundError)
-          case response                                 =>
-            logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
-            Left(InternalServerError)
+        .map { response =>
+          response.status match {
+            case OK                                                                               =>
+              Try(response.json.as[RegWithIdIndApiResponse]) match {
+                case Success(data)      => Right(data)
+                case Failure(exception) =>
+                  logger.warn(
+                    s"Error parsing response as RegWithIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
+                  )
+                  Left(JsonValidationError)
+              }
+            case BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE =>
+              Left(errorParse(response, endpoint))
+            case NOT_FOUND                                                                        =>
+              logger.warn(
+                s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              )
+              Left(NotFoundError)
+            case _                                                                                =>
+              logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+              Left(InternalServerError)
+          }
         }
     }
 
