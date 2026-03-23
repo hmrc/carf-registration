@@ -58,6 +58,22 @@ class SubscriptionConnectorISpec
       |  }
     |}""".stripMargin
 
+  val testApiErrorDetailResponseJson: String =
+    """{
+      |  "errorDetail": {
+      |    "errorCode": "400",
+      |    "errorMessage": "Test Error Message",
+      |    "source": "Test",
+      |    "sourceFaultDetail": {
+      |      "detail": [
+      |        "Test Error Detail"
+      |      ]
+      |    },
+      |    "timestamp": "2020-09-25T21:54:12.015Z",
+      |    "correlationId": "1ae81b45-41b4-4642-ae1c-db1126900001"
+      |  }
+      |}""".stripMargin
+
   "sendSubscriptionInformation" should {
 
     "successfully retrieve the API response for a 200 OK" in {
@@ -126,7 +142,7 @@ class SubscriptionConnectorISpec
     "return Left InternalServerError if BAD_REQUEST status response is returned from backend" in {
       stubFor(
         post(urlPathMatching("/dac6/createsubscriptiondata/carf/v1"))
-          .willReturn(aResponse().withStatus(BAD_REQUEST))
+          .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(testApiErrorDetailResponseJson))
       )
 
       val result = connector.sendSubscriptionInformation(testSubscriptionRequest).value.futureValue
@@ -136,7 +152,7 @@ class SubscriptionConnectorISpec
     "return Left InternalServerError if SERVICE_UNAVAILABLE status response is returned from backend" in {
       stubFor(
         post(urlPathMatching("/dac6/createsubscriptiondata/carf/v1"))
-          .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE))
+          .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE).withBody(testApiErrorDetailResponseJson))
       )
 
       val result = connector.sendSubscriptionInformation(testSubscriptionRequest).value.futureValue
@@ -156,7 +172,7 @@ class SubscriptionConnectorISpec
     "return Left InternalServerError if 500 status response is returned from backend" in {
       stubFor(
         post(urlPathMatching("/dac6/createsubscriptiondata/carf/v1"))
-          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(testApiErrorDetailResponseJson))
       )
 
       val result = connector.sendSubscriptionInformation(testSubscriptionRequest).value.futureValue
