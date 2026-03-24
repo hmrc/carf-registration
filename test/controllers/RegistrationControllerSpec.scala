@@ -25,7 +25,7 @@ import play.api.mvc.Results.BadRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
 import uk.gov.hmrc.carfregistration.models.requests.{AddressDetailsFrontend, ContactDetailsFrontend, RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest, RegWithoutIdIndFrontendRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse, RegWithoutIdIndFrontendResponse}
+import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse, RegWithoutIdFrontendResponse}
 import uk.gov.hmrc.carfregistration.models.{InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 import org.scalatest.wordspec.AnyWordSpec
@@ -297,7 +297,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return OK when the service returns a successful response" in {
         val apiResponse =
-          RegWithoutIdIndFrontendResponse(
+          RegWithoutIdFrontendResponse(
             safeId = "SAFE123456"
           )
 

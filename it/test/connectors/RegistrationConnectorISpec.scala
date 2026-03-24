@@ -206,9 +206,9 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       |""".stripMargin
 
   val testWithoutIdResponseBody =
-    RegWithoutIdIndApiResponse(
+    RegWithoutIdApiResponseDetails(
       responseCommon = ResponseCommon(status = "OK"),
-      responseDetail = RegWithoutIdIndApiResponseDetail(
+      responseDetail = RegWithoutIdApiResponseDetail(
         SAFEID = "SAFE123456"
       )
     )
@@ -314,7 +314,7 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       )
 
       val result = connector.individualWithoutId(testWithoutIdRequest).value.futureValue
-      result mustBe Right(RegWithoutIdIndApiResponse(ResponseCommon("OK"), RegWithoutIdIndApiResponseDetail("SAFE123456")))
+      result mustBe Right(RegWithoutIdApiResponseDetails(ResponseCommon("OK"), RegWithoutIdApiResponseDetail("SAFE123456")))
     }
 
     "return JsonValidationError if invalid JSON returned" in {

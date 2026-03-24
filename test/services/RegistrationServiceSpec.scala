@@ -303,9 +303,9 @@ class RegistrationServiceSpec extends SpecBase {
 
       "must return success frontend response when the connector returns a successful response" in {
 
-        val apiResponse = RegWithoutIdIndApiResponse(
+        val apiResponse = RegWithoutIdApiResponseDetails(
           responseCommon = ResponseCommon(status = "OK"),
-          responseDetail = RegWithoutIdIndApiResponseDetail(
+          responseDetail = RegWithoutIdApiResponseDetail(
             SAFEID = "SAFE123456"
           )
         )
@@ -315,13 +315,13 @@ class RegistrationServiceSpec extends SpecBase {
 
         val result = testService.registerIndWithoutId(frontendRequest).futureValue
 
-        result mustBe Right(RegWithoutIdIndFrontendResponse("SAFE123456"))
+        result mustBe Right(RegWithoutIdFrontendResponse("SAFE123456"))
       }
 
       "return error when connector returns an error" in {
 
         when(mockConnector.individualWithoutId(any())(any()))
-          .thenReturn(EitherT.leftT[Future, RegWithoutIdIndApiResponse](NotFoundError))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](NotFoundError))
 
         val result = testService.registerIndWithoutId(frontendRequest).futureValue
 
@@ -330,7 +330,7 @@ class RegistrationServiceSpec extends SpecBase {
 
       "must return an internal server error when the connector returns an internal server error" in {
         when(mockConnector.individualWithoutId(any())(any()))
-          .thenReturn(EitherT.leftT[Future, RegWithoutIdIndApiResponse](InternalServerError))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](InternalServerError))
 
         val result = testService.registerIndWithoutId(frontendRequest).futureValue
         result mustBe Left(InternalServerError)
@@ -338,7 +338,7 @@ class RegistrationServiceSpec extends SpecBase {
 
       "must return a json validation error when the connector returns json validation error" in {
         when(mockConnector.individualWithoutId(any())(any()))
-          .thenReturn(EitherT.leftT[Future, RegWithoutIdIndApiResponse](JsonValidationError))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](JsonValidationError))
 
         val result = testService.registerIndWithoutId(frontendRequest).futureValue
         result mustBe Left(JsonValidationError)
