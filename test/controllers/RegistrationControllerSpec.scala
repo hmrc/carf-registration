@@ -374,7 +374,7 @@ class RegistrationControllerSpec extends SpecBase {
 
         val result = testController.registerOrganisationWithoutId()(request)
 
-        status(result) mustBe OK
+        status(result)        mustBe OK
         contentAsJson(result) mustBe Json.toJson(apiResponse)
       }
 

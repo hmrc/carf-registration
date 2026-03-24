@@ -90,7 +90,7 @@ class RegistrationController @Inject() (
     withJsonBody[RegWithoutIdIndFrontendRequest] { req =>
       logger.debug(s"registerIndividualWithoutId request = \n-> $req")
       service.registerIndWithoutId(req).map {
-        case Right(resp) => Ok(Json.toJson(resp))
+        case Right(resp)           => Ok(Json.toJson(resp))
         case Left(error: ApiError) =>
           logger.warn(s"[registerIndividualWithoutId] Error registering individual without id. Error: $error")
           InternalServerError("Unexpected error")
@@ -102,7 +102,7 @@ class RegistrationController @Inject() (
     withJsonBody[RegWithoutIdOrgFrontendRequest] { req =>
       logger.debug(s"registerOrganisationWithoutId request = \n-> $req")
       service.registerOrgWithoutId(req).map {
-        case Right(resp) => Ok(Json.toJson(resp))
+        case Right(resp)           => Ok(Json.toJson(resp))
         case Left(error: ApiError) =>
           logger.warn(s"[registerOrganisationWithoutId] Error registering individual without id. Error: $error")
           InternalServerError("Unexpected error")
