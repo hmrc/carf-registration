@@ -28,11 +28,19 @@ object RegWithoutIdApiRequest {
 
 case class RegWithoutIdApiRequestDetails(requestCommon: RequestCommon, requestDetail: RegWithoutIdRequestDetail)
 
+object RegWithoutIdApiRequestDetails {
+  implicit val format: OFormat[RegWithoutIdApiRequestDetails] = Json.format[RegWithoutIdApiRequestDetails]
+}
+
 sealed trait RegWithoutIdRequestDetail {
   val address: AddressDetailsFrontend
   val contactDetails: ContactDetailsFrontend
   val isAnAgent: Boolean
   val isAGroup: Boolean
+}
+
+object RegWithoutIdRequestDetail {
+  implicit val format: OFormat[RegWithoutIdRequestDetail] = Json.format[RegWithoutIdRequestDetail]
 }
 
 case class RequestDetailIndividualWithoutId(

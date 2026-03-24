@@ -337,5 +337,73 @@ class RegistrationControllerSpec extends SpecBase {
         status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
+
+    "registerOrganisationWithoutId" - {
+
+      val frontendRequestJsonStr: String =
+        """
+          |{
+          |  "organisationName": "ABC Limited",
+          |  "address": {
+          |    "addressLine1": "123 Test Street",
+          |    "addressLine2": "Flat 1",
+          |    "addressLine3": null,
+          |    "townOrCity": "France",
+          |    "postalCode": "SW1A 1AA",
+          |    "countryCode": "FR"
+          |  },
+          |  "contactDetails": {
+          |    "emailAddress": "john.doe@example.com",
+          |    "phoneNumber": "07123456789"
+          |  }
+          |}
+          |""".stripMargin
+
+      val frontendRequestJson: JsValue = Json.parse(frontendRequestJsonStr)
+
+      val request = fakeRequestWithJsonBody(frontendRequestJson)
+
+      "must return OK when the service returns a successful response" in {
+        val apiResponse =
+          RegWithoutIdFrontendResponse(
+            safeId = "SAFE123456"
+          )
+
+        when(mockService.registerOrgWithoutId(any())(any()))
+          .thenReturn(Future.successful(Right(apiResponse)))
+
+        val result = testController.registerOrganisationWithoutId()(request)
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(apiResponse)
+      }
+
+      "must return internal server error when the service returns NotFoundError" in {
+        when(mockService.registerOrgWithoutId(any())(any()))
+          .thenReturn(Future.successful(Left(NotFoundError)))
+
+        val result = testController.registerOrganisationWithoutId()(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+
+      "must return internal server error when the service returns InternalServerError" in {
+        when(mockService.registerOrgWithoutId(any())(any()))
+          .thenReturn(Future.successful(Left(InternalServerError)))
+
+        val result = testController.registerOrganisationWithoutId()(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+
+      "must return internal server error when the service returns JsonValidationError" in {
+        when(mockService.registerOrgWithoutId(any())(any()))
+          .thenReturn(Future.successful(Left(JsonValidationError)))
+
+        val result = testController.registerOrganisationWithoutId()(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+    }
   }
 }

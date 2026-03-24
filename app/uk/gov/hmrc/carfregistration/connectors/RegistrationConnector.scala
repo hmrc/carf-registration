@@ -23,12 +23,9 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
-import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest, RegWithoutIdIndApiRequest, RegWithoutIdIndApiRequestWrapper}
-import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdIndApiResponse, RegWithoutIdIndApiResponseWrapper}
-import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetail, ErrorDetails, InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest, RegWithoutIdApiRequest}
 import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdApiResponse, RegWithoutIdApiResponseDetails}
-import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
@@ -132,7 +129,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         .execute[HttpResponse]
         .map { response =>
           response.status match {
-            case OK =>
+            case OK                                                                               =>
               Try(response.json.as[RegWithoutIdApiResponse]) match {
                 case Success(response)  => Right(response)
                 case Failure(exception) =>
@@ -141,11 +138,8 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                   )
                   Left(JsonValidationError)
               }
-
             case BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE =>
-              // wait for May's PR to be merged and use errorParse
-              val detail = extractSourceFaultDetail(response)
-
+              Left(errorParse(response, endpoint))
             case _                                                                                =>
               logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
               Left(InternalServerError)
