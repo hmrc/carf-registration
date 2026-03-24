@@ -122,7 +122,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegWithoutIdApiResponse] =
     EitherT {
       val endpoint: URL = url"${config.registerWithoutIdBaseUrl}"
-      logger.debug(s"[RegistrationConnector] Calling individualWithoutId endpoint: ${endpoint.toURI}")
+      logger.info(s"[RegistrationConnector] Calling registerWithoutId API with endpoint: ${endpoint.toURI}")
       http
         .post(endpoint)
         .withBody(Json.toJson(request))
