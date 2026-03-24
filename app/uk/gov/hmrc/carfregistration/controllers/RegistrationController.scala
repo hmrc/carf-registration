@@ -21,8 +21,8 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.carfregistration.controllers.actions.AuthAction
-import uk.gov.hmrc.carfregistration.models.{ApiError, JsonValidationError, MissingFieldsError, NotFoundError}
-import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest, RegWithoutIdIndFrontendRequest, RegWithoutIdOrgFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.requests.*
+import uk.gov.hmrc.carfregistration.models.{ApiError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -89,7 +89,7 @@ class RegistrationController @Inject() (
   def registerIndividualWithoutId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegWithoutIdIndFrontendRequest] { req =>
       logger.debug(s"registerIndividualWithoutId request = \n-> $req")
-      service.registerIndWithoutId(req).map {
+      service.registerIndWithoutId(req).value.map {
         case Right(resp)           => Ok(Json.toJson(resp))
         case Left(error: ApiError) =>
           logger.warn(s"[registerIndividualWithoutId] Error registering individual without id. Error: $error")
@@ -101,7 +101,7 @@ class RegistrationController @Inject() (
   def registerOrganisationWithoutId(): Action[JsValue] = authorise(parse.json).async { implicit request =>
     withJsonBody[RegWithoutIdOrgFrontendRequest] { req =>
       logger.debug(s"registerOrganisationWithoutId request = \n-> $req")
-      service.registerOrgWithoutId(req).map {
+      service.registerOrgWithoutId(req).value.map {
         case Right(resp)           => Ok(Json.toJson(resp))
         case Left(error: ApiError) =>
           logger.warn(s"[registerOrganisationWithoutId] Error registering individual without id. Error: $error")

@@ -17,20 +17,18 @@
 package controllers
 
 import base.SpecBase
+import cats.data.EitherT
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.carfregistration.controllers.RegistrationController
-import uk.gov.hmrc.carfregistration.models.requests.{AddressDetailsFrontend, ContactDetailsFrontend, RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest, RegWithoutIdIndFrontendRequest}
+import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdAutoMatchOrgFrontendRequest, RegWithIdUserEntryOrgFrontendRequest, RegWithNinoIndFrontendRequest, RegWithUtrIndFrontendRequest}
 import uk.gov.hmrc.carfregistration.models.responses.{AddressResponse, RegWithIdIndFrontendResponse, RegWithIdOrgFrontendResponse, RegWithoutIdFrontendResponse}
-import uk.gov.hmrc.carfregistration.models.{InternalServerError, JsonValidationError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
 import uk.gov.hmrc.carfregistration.services.RegistrationService
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
-import play.api.test.FakeRequest
 
 import scala.concurrent.Future
 
@@ -302,7 +300,7 @@ class RegistrationControllerSpec extends SpecBase {
           )
 
         when(mockService.registerIndWithoutId(any())(any()))
-          .thenReturn(Future.successful(Right(apiResponse)))
+          .thenReturn(EitherT.rightT[Future, ApiError](apiResponse))
 
         val result = testController.registerIndividualWithoutId()(request)
 
@@ -312,7 +310,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return internal server error when the service returns NotFoundError" in {
         when(mockService.registerIndWithoutId(any())(any()))
-          .thenReturn(Future.successful(Left(NotFoundError)))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdFrontendResponse](NotFoundError))
 
         val result = testController.registerIndividualWithoutId()(request)
 
@@ -321,7 +319,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return internal server error when the service returns InternalServerError" in {
         when(mockService.registerIndWithoutId(any())(any()))
-          .thenReturn(Future.successful(Left(InternalServerError)))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdFrontendResponse](InternalServerError))
 
         val result = testController.registerIndividualWithoutId()(request)
 
@@ -330,7 +328,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return internal server error when the service returns JsonValidationError" in {
         when(mockService.registerIndWithoutId(any())(any()))
-          .thenReturn(Future.successful(Left(JsonValidationError)))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdFrontendResponse](JsonValidationError))
 
         val result = testController.registerIndividualWithoutId()(request)
 
@@ -370,7 +368,7 @@ class RegistrationControllerSpec extends SpecBase {
           )
 
         when(mockService.registerOrgWithoutId(any())(any()))
-          .thenReturn(Future.successful(Right(apiResponse)))
+          .thenReturn(EitherT.rightT[Future, ApiError](apiResponse))
 
         val result = testController.registerOrganisationWithoutId()(request)
 
@@ -380,7 +378,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return internal server error when the service returns NotFoundError" in {
         when(mockService.registerOrgWithoutId(any())(any()))
-          .thenReturn(Future.successful(Left(NotFoundError)))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdFrontendResponse](NotFoundError))
 
         val result = testController.registerOrganisationWithoutId()(request)
 
@@ -389,7 +387,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return internal server error when the service returns InternalServerError" in {
         when(mockService.registerOrgWithoutId(any())(any()))
-          .thenReturn(Future.successful(Left(InternalServerError)))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdFrontendResponse](InternalServerError))
 
         val result = testController.registerOrganisationWithoutId()(request)
 
@@ -398,7 +396,7 @@ class RegistrationControllerSpec extends SpecBase {
 
       "must return internal server error when the service returns JsonValidationError" in {
         when(mockService.registerOrgWithoutId(any())(any()))
-          .thenReturn(Future.successful(Left(JsonValidationError)))
+          .thenReturn(EitherT.leftT[Future, RegWithoutIdFrontendResponse](JsonValidationError))
 
         val result = testController.registerOrganisationWithoutId()(request)
 

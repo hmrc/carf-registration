@@ -331,7 +331,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](apiResponse))
 
-        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).futureValue
+        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).value.futureValue
 
         result mustBe Right(RegWithoutIdFrontendResponse("SAFE123456"))
       }
@@ -341,7 +341,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](NotFoundError))
 
-        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).futureValue
+        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).value.futureValue
 
         result mustBe Left(NotFoundError)
       }
@@ -350,7 +350,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](InternalServerError))
 
-        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).futureValue
+        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).value.futureValue
         result mustBe Left(InternalServerError)
       }
 
@@ -358,7 +358,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](JsonValidationError))
 
-        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).futureValue
+        val result = testService.registerIndWithoutId(testRegWithoutIdIndFrontendRequest).value.futureValue
         result mustBe Left(JsonValidationError)
       }
     }
@@ -379,7 +379,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](apiResponse))
 
-        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).futureValue
+        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).value.futureValue
 
         result mustBe Right(RegWithoutIdFrontendResponse("SAFE123456"))
       }
@@ -389,7 +389,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](NotFoundError))
 
-        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).futureValue
+        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).value.futureValue
 
         result mustBe Left(NotFoundError)
       }
@@ -398,7 +398,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](InternalServerError))
 
-        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).futureValue
+        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).value.futureValue
         result mustBe Left(InternalServerError)
       }
 
@@ -406,7 +406,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.registerWithoutId(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegWithoutIdApiResponseDetails](JsonValidationError))
 
-        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).futureValue
+        val result = testService.registerOrgWithoutId(testRegWithoutIdOrgFrontendRequest).value.futureValue
         result mustBe Left(JsonValidationError)
       }
     }

@@ -512,6 +512,30 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
       result mustBe Left(InternalServerError)
     }
 
+    "return InternalServerError for 403 response" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0101/v1"))
+          .willReturn(aResponse()
+            .withStatus(FORBIDDEN)
+          )
+      )
+
+      val result = connector.registerWithoutId(testIndWithoutIdRequest).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return InternalServerError for 405 response" in {
+      stubFor(
+        post(urlPathMatching("/dac6/dprs0101/v1"))
+          .willReturn(aResponse()
+            .withStatus(METHOD_NOT_ALLOWED)
+          )
+      )
+
+      val result = connector.registerWithoutId(testIndWithoutIdRequest).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
     "return JsonValidationError if ErrorDetail cannot be parsed in response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
