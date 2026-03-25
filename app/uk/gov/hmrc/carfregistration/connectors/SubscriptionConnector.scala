@@ -80,7 +80,7 @@ class SubscriptionConnector @Inject() (
     }
 
   private def logDownStreamError(status: Int, body: String): Unit = {
-    val error = Try(Json.parse(body).validate[ErrorDetails])
+    val error = Try(Json.parse(body).validate[ErrorDetail])
     error match {
       case Success(JsSuccess(value, _)) =>
         logger.warn(
