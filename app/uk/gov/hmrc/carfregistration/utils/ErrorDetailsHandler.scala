@@ -17,7 +17,7 @@
 package uk.gov.hmrc.carfregistration.utils
 
 import play.api.Logging
-import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetails, InternalServerError, JsonValidationError}
+import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetail, InternalServerError, JsonValidationError}
 import uk.gov.hmrc.http.HttpResponse
 
 import java.net.URL
@@ -27,7 +27,7 @@ object ErrorDetailsHandler extends Logging {
 
   def errorParse(response: HttpResponse, endpoint: URL): ApiError =
     logger.warn(s"Status code: ${response.status} from endpoint: ${endpoint.toURI}")
-    Try(response.json.as[ErrorDetails]) match {
+    Try(response.json.as[ErrorDetail]) match {
       case Success(error)     =>
         logger.warn(
           s"Error code: ${error.errorDetail.errorCode}. Error message: ${error.errorDetail.errorMessage}. Source fault detail: ${error.errorDetail.sourceFaultDetail}"

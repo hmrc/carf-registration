@@ -19,12 +19,12 @@ package uk.gov.hmrc.carfregistration.connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.*
 import play.api.libs.json.*
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models.requests.SubscriptionRequest
-import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetails, InternalServerError}
+import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetail, InternalServerError}
 import uk.gov.hmrc.carfregistration.utils.ErrorDetailsHandler
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2

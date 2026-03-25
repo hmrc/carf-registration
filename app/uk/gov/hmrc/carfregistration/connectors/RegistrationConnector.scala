@@ -25,7 +25,8 @@ import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models.requests.{RegWithIdIndApiRequest, RegWithIdOrgApiRequest, RegWithoutIdIndApiRequest, RegWithoutIdIndApiRequestWrapper}
 import uk.gov.hmrc.carfregistration.models.responses.{RegWithIdIndApiResponse, RegWithIdOrgApiResponse, RegWithoutIdIndApiResponse, RegWithoutIdIndApiResponseWrapper}
-import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetail, ErrorDetails, InternalServerError, JsonValidationError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.{ApiError, InternalServerError, JsonValidationError, NotFoundError}
+import uk.gov.hmrc.carfregistration.utils.ErrorDetailsHandler
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
@@ -75,7 +76,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                   Left(JsonValidationError)
               }
             case BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE =>
-              Left(errorParse(response, endpoint))
+              Left(ErrorDetailsHandler.errorParse(response, endpoint))
             case NOT_FOUND                                                                        =>
               logger.warn(
                 s"No match could be found for this organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
@@ -109,7 +110,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
                   Left(JsonValidationError)
               }
             case BAD_REQUEST | UNPROCESSABLE_ENTITY | INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE =>
-              Left(errorParse(response, endpoint))
+              Left(ErrorDetailsHandler.errorParse(response, endpoint))
             case NOT_FOUND                                                                        =>
               logger.warn(
                 s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
@@ -200,18 +201,4 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
         }
     }
 
-  private def errorParse(response: HttpResponse, endpoint: URL): ApiError =
-    logger.warn(s"Status code: ${response.status} from endpoint: ${endpoint.toURI}")
-    Try(response.json.as[ErrorDetail]) match {
-      case Success(error)     =>
-        logger.warn(
-          s"Error code: ${error.errorDetail.errorCode}. Error message: ${error.errorDetail.errorMessage}. Source fault detail: ${error.errorDetail.sourceFaultDetail}"
-        )
-        InternalServerError
-      case Failure(exception) =>
-        logger.warn(
-          s"Error parsing response as ErrorDetails. Exception: <${exception.getMessage}>"
-        )
-        JsonValidationError
-    }
 }
