@@ -63,7 +63,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
             case OK                                                                               =>
               Try(response.json.as[RegWithIdOrgApiResponse]) match {
                 case Success(data)      =>
-                  logger.debug(s"Register organisation with ID Success! Response: ${data}")
+                  logger.debug(s"Register organisation with ID Success! Response: $data")
                   Right(data)
                 case Failure(exception) =>
                   logger.warn(
@@ -99,7 +99,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
             case OK                                                                               =>
               Try(response.json.as[RegWithIdIndApiResponse]) match {
                 case Success(data)      =>
-                  logger.debug(s"Register individual with ID Success! Response: ${data}")
+                  logger.debug(s"Register individual with ID Success! Response: $data")
                   Right(data)
                 case Failure(exception) =>
                   logger.warn(
@@ -136,7 +136,7 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
             case OK                                                                               =>
               Try(response.json.as[RegWithoutIdApiResponse]) match {
                 case Success(response)  =>
-                  logger.debug(s"Register without ID Success! Response: ${response}")
+                  logger.debug(s"Register without ID Success! Response: $response")
                   Right(response)
                 case Failure(exception) =>
                   logger.warn(
