@@ -104,7 +104,7 @@ class RegistrationController @Inject() (
       service.registerOrgWithoutId(req).value.map {
         case Right(resp)           => Ok(Json.toJson(resp))
         case Left(error: ApiError) =>
-          logger.warn(s"[registerOrganisationWithoutId] Error registering individual without id. Error: $error")
+          logger.warn(s"[registerOrganisationWithoutId] Error registering organisation without id. Error: $error")
           InternalServerError("Unexpected error")
       }
     }
