@@ -62,7 +62,9 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
           response.status match {
             case OK                                                                               =>
               Try(response.json.as[RegWithIdOrgApiResponse]) match {
-                case Success(data)      => Right(data)
+                case Success(data)      =>
+                  logger.debug(s"Register organisation with ID Success! Response: ${data}")
+                  Right(data)
                 case Failure(exception) =>
                   logger.warn(
                     s"Error parsing response as RegWithIdOrgApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
@@ -96,7 +98,9 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
           response.status match {
             case OK                                                                               =>
               Try(response.json.as[RegWithIdIndApiResponse]) match {
-                case Success(data)      => Right(data)
+                case Success(data)      =>
+                  logger.debug(s"Register individual with ID Success! Response: ${data}")
+                  Right(data)
                 case Failure(exception) =>
                   logger.warn(
                     s"Error parsing response as RegWithIdIndApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
@@ -131,7 +135,9 @@ class RegistrationConnector @Inject() (val config: AppConfig, val http: HttpClie
           response.status match {
             case OK                                                                               =>
               Try(response.json.as[RegWithoutIdApiResponse]) match {
-                case Success(response)  => Right(response)
+                case Success(response)  =>
+                  logger.debug(s"Register without ID Success! Response: ${response}")
+                  Right(response)
                 case Failure(exception) =>
                   logger.warn(
                     s"Error parsing response as RegWithoutIdApiResponse. Endpoint: <${endpoint.toURI}> Exception: <${exception.getMessage}>"
