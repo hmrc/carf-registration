@@ -27,7 +27,7 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.carfregistration.connectors.SubscriptionConnector
 import uk.gov.hmrc.carfregistration.models.requests.{Contact, SubscriptionRequest}
-import uk.gov.hmrc.carfregistration.models.responses.{CarfSubscriptionDetails, SubscriptionDisplayResponse}
+import uk.gov.hmrc.carfregistration.models.responses.{CarfSubscriptionDetails, SubscriptionDisplayResponse, SubscriptionDisplaySuccess}
 import uk.gov.hmrc.carfregistration.models.{ApiError, Individual, InternalServerError, NotFoundError}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
@@ -56,25 +56,13 @@ class SubscriptionConnectorISpec
   )
 
   val testSubscriptionDisplayResponse = SubscriptionDisplayResponse(
-    processingDate = "2024-01-25T09:26:17Z",
-    carfSubscriptionDetails = CarfSubscriptionDetails(
-      carfReference = exampleCarfReference,
-      tradingName = Some("CARF LTD"),
-      gbUser = true,
-      primaryContact = Contact(
-        individual = Some(
-          Individual(
-            firstName = "Joe",
-            lastName = "Smith"
-          )
-        ),
-        email = "GroupRep@FATCACRS.com",
-        phone = Some("01232473743"),
-        mobile = Some("07232473743"),
-        organisation = None
-      ),
-      secondaryContact = Some(
-        Contact(
+    success = SubscriptionDisplaySuccess(
+      processingDate = "2024-01-25T09:26:17Z",
+      carfSubscriptionDetails = CarfSubscriptionDetails(
+        carfReference = exampleCarfReference,
+        tradingName = Some("CARF LTD"),
+        gbUser = true,
+        primaryContact = Contact(
           individual = Some(
             Individual(
               firstName = "Joe",
@@ -82,9 +70,23 @@ class SubscriptionConnectorISpec
             )
           ),
           email = "GroupRep@FATCACRS.com",
-          phone = Some("01232473744"),
-          mobile = Some("07232473744"),
+          phone = Some("01232473743"),
+          mobile = Some("07232473743"),
           organisation = None
+        ),
+        secondaryContact = Some(
+          Contact(
+            individual = Some(
+              Individual(
+                firstName = "Joe",
+                lastName = "Smith"
+              )
+            ),
+            email = "GroupRep@FATCACRS.com",
+            phone = Some("01232473744"),
+            mobile = Some("07232473744"),
+            organisation = None
+          )
         )
       )
     )
@@ -122,7 +124,7 @@ class SubscriptionConnectorISpec
       |          "middleName": "Martyn",
       |          "lastName": "Smith"
       |        },
-      |        "email": "Group@FATCACRS.com",
+      |        "email": "GroupRep@FATCACRS.com",
       |        "phone": "01232473744",
       |        "mobile": "07232473744"
       |      }
@@ -269,7 +271,7 @@ class SubscriptionConnectorISpec
 
   "retrieveSubscriptionInformation" should {
 
-    val testUrl = s"/dac6/ViewCarfSubscription/v1/$exampleCarfReference"
+    val testUrl = s"/dac6/ViewCarfSubscription/v1/.*"
 
     "successfully retrieve the API response for a 200 OK" in {
       stubFor(
@@ -283,7 +285,7 @@ class SubscriptionConnectorISpec
 
     "return Left NotFoundError if NOT_FOUND status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrl))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -313,7 +315,7 @@ class SubscriptionConnectorISpec
 
     "return Left InternalServerError if FORBIDDEN status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrl))
           .willReturn(aResponse().withStatus(FORBIDDEN))
       )
 

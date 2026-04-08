@@ -31,7 +31,13 @@ object CarfSubscriptionDetails {
   implicit val format: OFormat[CarfSubscriptionDetails] = Json.format[CarfSubscriptionDetails]
 }
 
-case class SubscriptionDisplayResponse(processingDate: String, carfSubscriptionDetails: CarfSubscriptionDetails)
+case class SubscriptionDisplaySuccess(processingDate: String, carfSubscriptionDetails: CarfSubscriptionDetails)
+
+object SubscriptionDisplaySuccess {
+  implicit val format: OFormat[SubscriptionDisplaySuccess] = Json.format[SubscriptionDisplaySuccess]
+}
+
+case class SubscriptionDisplayResponse(success: SubscriptionDisplaySuccess)
 
 object SubscriptionDisplayResponse {
   implicit val format: OFormat[SubscriptionDisplayResponse] = Json.format[SubscriptionDisplayResponse]
