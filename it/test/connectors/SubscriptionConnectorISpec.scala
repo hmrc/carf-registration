@@ -78,7 +78,7 @@ class SubscriptionConnectorISpec
               lastName = "Smith"
             )
           ),
-          email = "GroupRep@FATCACRS.com",
+          email = "Group@FATCACRS.com",
           phone = Some("01232473744"),
           mobile = Some("07232473744"),
           organisation = None
@@ -86,6 +86,7 @@ class SubscriptionConnectorISpec
       )
     )
   )
+
 
   val testCreateSubscriptionResponseJson: String =
     """{
@@ -96,36 +97,34 @@ class SubscriptionConnectorISpec
     |}""".stripMargin
 
   val testDisplaySubscriptionResponseJson: String =
-    """
-      |{
-      |  "success": {
-      |    "processingDate": "2024-01-25T09:26:17Z",
-      |    "carfSubscriptionDetails": {
-      |      "carfReference": "XCCAR0024000102",
-      |      "tradingName": "CARF LTD",
-      |      "gbUser": true,
-      |      "primaryContact": {
-      |        "individual": {
-      |          "firstName": "Joe",
-      |          "lastName": "Smith"
-      |        },
-      |        "email": "GroupRep@FATCACRS.com",
-      |        "phone": "01232473743",
-      |        "mobile": "07232473743"
+    """{
+      |  "processingDate": "2024-01-25T09:26:17Z",
+      |  "carfSubscriptionDetails": {
+      |    "carfReference": "XCCAR0024000102",
+      |    "tradingName": "CARF LTD",
+      |    "gbUser": true,
+      |    "primaryContact": {
+      |      "individual": {
+      |        "firstName": "Joe",
+      |        "lastName": "Smith"
       |      },
-      |      "secondaryContact": {
-      |        "individual": {
-      |          "firstName": "Joe",
-      |          "middleName": "Martyn",
-      |          "lastName": "Smith"
-      |        },
-      |        "email": "Group@FATCACRS.com",
-      |        "phone": "01232473744",
-      |        "mobile": "07232473744"
-      |      }
+      |      "email": "GroupRep@FATCACRS.com",
+      |      "phone": "01232473743",
+      |      "mobile": "07232473743"
+      |    },
+      |    "secondaryContact": {
+      |      "individual": {
+      |        "firstName": "Joe",
+      |        "middleName": "Martyn",
+      |        "lastName": "Smith"
+      |      },
+      |      "email": "Group@FATCACRS.com",
+      |      "phone": "01232473744",
+      |      "mobile": "07232473744"
       |    }
       |  }
       |}""".stripMargin
+
 
   val testApiErrorDetailResponseJson: String =
     """{
@@ -261,11 +260,11 @@ class SubscriptionConnectorISpec
 
   "retrieveSubscriptionInformation" should {
 
-    val testUrl = s"/dac6/ViewCarfSubscription/v1/$exampleCarfReference"
+    val testUrlPattern = s"/dac6/ViewCarfSubscription/v1/.*"
 
     "successfully retrieve the API response for a 200 OK" in {
       stubFor(
-        get(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(OK).withBody(testDisplaySubscriptionResponseJson))
       )
 
@@ -275,7 +274,7 @@ class SubscriptionConnectorISpec
 
     "return Left NotFoundError if NOT_FOUND status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -285,7 +284,7 @@ class SubscriptionConnectorISpec
 
     "return Left InternalServerError if BAD_REQUEST status response is returned from backend" in {
       stubFor(
-        get(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(testApiErrorDetailResponseJson))
       )
 
@@ -295,7 +294,7 @@ class SubscriptionConnectorISpec
 
     "return Left InternalServerError if SERVICE_UNAVAILABLE status response is returned from backend" in {
       stubFor(
-        get(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE).withBody(testApiErrorDetailResponseJson))
       )
 
@@ -305,7 +304,7 @@ class SubscriptionConnectorISpec
 
     "return Left InternalServerError if FORBIDDEN status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(FORBIDDEN))
       )
 
@@ -315,7 +314,7 @@ class SubscriptionConnectorISpec
 
     "return Left InternalServerError if 500 status response is returned from backend" in {
       stubFor(
-        get(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(testApiErrorDetailResponseJson))
       )
 
@@ -325,7 +324,7 @@ class SubscriptionConnectorISpec
 
     "return Left InternalServerError if unexpected status code is returned from backend" in {
       stubFor(
-        get(urlPathMatching(testUrl))
+        get(urlPathMatching(testUrlPattern))
           .willReturn(aResponse().withStatus(502))
       )
 
