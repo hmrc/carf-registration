@@ -668,8 +668,8 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     val applicationJson = "application/json"
 
     builder
-      .withHeader("x-forwarded-host", matching(".*"))
-      .withHeader("date", matching(".*"))
+      .withHeader("x-forwarded-host", matching("mdtp"))
+      .withHeader("date", matching("^[A-Z][a-z]{2},\\s\\d{2}\\s[A-Z][a-z]{2}\\s\\d{4}\\s\\d{2}:\\d{2}:\\d{2}\\s[A-Z]{3,4}([+-]\\d{1,2})?$"))
       .withHeader("x-correlation-id", matching(uuidRegex.toString()))
       .withHeader("x-conversation-id", matching(uuidRegex.toString()))
       .withHeader("content-type", matching(applicationJson))
