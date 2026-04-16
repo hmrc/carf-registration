@@ -33,6 +33,9 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import java.net.URL
+import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
+import java.util.{Locale, UUID}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -44,6 +47,17 @@ class SubscriptionConnector @Inject() (
 
   private val createSubscriptionBackendBaseUrl  = config.createSubscriptionBaseUrl
   private val displaySubscriptionBackendBaseUrl = config.displaySubscriptionBaseUrl
+
+  private[connectors] val httpDateFormat = DateTimeFormatter
+    .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
+    .withZone(ZoneId.of("GMT"))
+
+  private[connectors] def headers(correlationId: UUID): Seq[(String, String)] = Seq(
+    "Accept"           -> "application/json",
+    "Date"             -> httpDateFormat.format(ZonedDateTime.now),
+    "X-Correlation-ID" -> correlationId.toString,
+    "X-Forwarded-Host" -> "MDTP"
+  )
 
   def sendSubscriptionInformation(
       subscription: SubscriptionRequest
@@ -57,11 +71,13 @@ class SubscriptionConnector @Inject() (
 
   private def createSubscription(request: SubscriptionRequest, endpoint: URL)(implicit
       hc: HeaderCarrier
-  ): EitherT[Future, ApiError, HttpResponse] =
+  ): EitherT[Future, ApiError, HttpResponse] = {
     logger.info(s"Calling endpoint: ${endpoint.toString}")
+    val correlationId = UUID.randomUUID()
     EitherT {
       http
         .post(endpoint)
+        .setHeader(headers(correlationId): _*)
         .withBody(Json.toJson(request))
         .setHeader(additionalHeaders(config, "create-subscription"): _*)
         .execute[HttpResponse]
@@ -87,14 +103,17 @@ class SubscriptionConnector @Inject() (
           }
         }
     }
+  }
 
   private def displaySubscription(endpoint: URL)(implicit
       hc: HeaderCarrier
   ): EitherT[Future, ApiError, SubscriptionDisplayResponse] = {
     logger.info(s"Calling endpoint: ${endpoint.toString}")
+    val correlationId = UUID.randomUUID()
     EitherT {
       http
         .get(endpoint)
+        .setHeader(headers(correlationId): _*)
         .execute[HttpResponse]
         .map { httpResponse =>
           httpResponse.status match {
