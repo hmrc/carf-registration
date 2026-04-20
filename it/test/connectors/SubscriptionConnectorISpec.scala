@@ -16,9 +16,7 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, stubFor, urlPathMatching}
-import itutil.ApplicationWithWiremock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import itutil.{ApplicationWithWiremock, ConnectorSpecHelper}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -274,8 +272,13 @@ class SubscriptionConnectorISpec
     val testUrl = s"/dac6/ViewCarfSubscription/v1/.*"
 
     "successfully retrieve the API response for a 200 OK" in {
-      stubFor(
+
+      val mappingBuilder = addMatchHeaders(
         get(urlPathMatching(testUrl))
+      )
+
+      stubFor(
+        mappingBuilder
           .willReturn(aResponse().withStatus(OK).withBody(testDisplaySubscriptionResponseJson))
       )
 
@@ -317,6 +320,16 @@ class SubscriptionConnectorISpec
       stubFor(
         get(urlPathMatching(testUrl))
           .willReturn(aResponse().withStatus(FORBIDDEN))
+      )
+
+      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return Left InternalServerError if UNPROCESSABLE_ENTITY status response is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY).withBody(testApiErrorDetailResponseJson))
       )
 
       val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue

@@ -26,16 +26,15 @@ import uk.gov.hmrc.carfregistration.config.AppConfig
 import uk.gov.hmrc.carfregistration.models
 import uk.gov.hmrc.carfregistration.models.requests.SubscriptionRequest
 import uk.gov.hmrc.carfregistration.models.responses.SubscriptionDisplayResponse
-import uk.gov.hmrc.carfregistration.models.{ApiError, ErrorDetail, InternalServerError, JsonValidationError, NotFoundError}
+import uk.gov.hmrc.carfregistration.models.{JsonValidationError, *}
+import uk.gov.hmrc.carfregistration.types.ResultT
 import uk.gov.hmrc.carfregistration.utils.ErrorDetailsHandler
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import java.net.URL
-import java.time.format.DateTimeFormatter
-import java.time.{ZoneId, ZonedDateTime}
-import java.util.{Locale, UUID}
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -47,17 +46,6 @@ class SubscriptionConnector @Inject() (
 
   private val createSubscriptionBackendBaseUrl  = config.createSubscriptionBaseUrl
   private val displaySubscriptionBackendBaseUrl = config.displaySubscriptionBaseUrl
-
-  private[connectors] val httpDateFormat = DateTimeFormatter
-    .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
-    .withZone(ZoneId.of("GMT"))
-
-  private[connectors] def headers(correlationId: UUID): Seq[(String, String)] = Seq(
-    "Accept"           -> "application/json",
-    "Date"             -> httpDateFormat.format(ZonedDateTime.now),
-    "X-Correlation-ID" -> correlationId.toString,
-    "X-Forwarded-Host" -> "MDTP"
-  )
 
   def sendSubscriptionInformation(
       subscription: SubscriptionRequest
@@ -71,13 +59,11 @@ class SubscriptionConnector @Inject() (
 
   private def createSubscription(request: SubscriptionRequest, endpoint: URL)(implicit
       hc: HeaderCarrier
-  ): EitherT[Future, ApiError, HttpResponse] = {
+  ): ResultT[HttpResponse] = {
     logger.info(s"Calling endpoint: ${endpoint.toString}")
-    val correlationId = UUID.randomUUID()
     EitherT {
       http
         .post(endpoint)
-        .setHeader(headers(correlationId): _*)
         .withBody(Json.toJson(request))
         .setHeader(additionalHeaders(config, "create-subscription"): _*)
         .execute[HttpResponse]
@@ -107,13 +93,13 @@ class SubscriptionConnector @Inject() (
 
   private def displaySubscription(endpoint: URL)(implicit
       hc: HeaderCarrier
-  ): EitherT[Future, ApiError, SubscriptionDisplayResponse] = {
+  ): ResultT[SubscriptionDisplayResponse] = {
     logger.info(s"Calling endpoint: ${endpoint.toString}")
     val correlationId = UUID.randomUUID()
     EitherT {
       http
         .get(endpoint)
-        .setHeader(headers(correlationId): _*)
+        .setHeader(additionalHeaders(config, "display-subscription"): _*)
         .execute[HttpResponse]
         .map { httpResponse =>
           httpResponse.status match {
