@@ -41,7 +41,7 @@ case class RequestDetailOrgUserEntry(
 ) extends RequestDetailOrg
 
 object RequestDetailOrgUserEntry {
-  implicit val format: OFormat[RequestDetailOrgUserEntry] = Json.format[RequestDetailOrgUserEntry]
+  implicit val writes: OWrites[RequestDetailOrgUserEntry] = Json.writes[RequestDetailOrgUserEntry]
 
   def apply(
       frontendRequest: RegWithIdUserEntryOrgFrontendRequest
@@ -66,7 +66,7 @@ case class RequestDetailOrgCtAutoMatch(
 ) extends RequestDetailOrg
 
 object RequestDetailOrgCtAutoMatch {
-  implicit val format: OFormat[RequestDetailOrgCtAutoMatch] = Json.format[RequestDetailOrgCtAutoMatch]
+  implicit val writes: OWrites[RequestDetailOrgCtAutoMatch] = Json.writes[RequestDetailOrgCtAutoMatch]
 
   def apply(frontendRequest: RegWithIdAutoMatchOrgFrontendRequest): RequestDetailOrgCtAutoMatch =
     RequestDetailOrgCtAutoMatch(
