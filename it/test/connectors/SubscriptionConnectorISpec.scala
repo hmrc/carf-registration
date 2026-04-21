@@ -282,7 +282,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(OK).withBody(testDisplaySubscriptionResponseJson))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Right(testSubscriptionDisplayResponse)
     }
 
@@ -292,7 +292,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(NotFoundError)
     }
 
@@ -302,7 +302,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -312,7 +312,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -322,7 +322,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(FORBIDDEN))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -332,7 +332,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -342,7 +342,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -352,7 +352,7 @@ class SubscriptionConnectorISpec
           .willReturn(aResponse().withStatus(502))
       )
 
-      val result = connector.retrieveSubscriptionInformation(exampleCarfReference).value.futureValue
+      val result = connector.displaySubscriptionInformation(exampleCarfReference).value.futureValue
       result mustBe Left(InternalServerError)
     }
   }

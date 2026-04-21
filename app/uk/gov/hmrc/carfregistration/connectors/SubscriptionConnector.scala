@@ -52,7 +52,7 @@ class SubscriptionConnector @Inject() (
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, HttpResponse] =
     createSubscription(subscription, url"$createSubscriptionBackendBaseUrl")
 
-  def retrieveSubscriptionInformation(
+  def displaySubscriptionInformation(
       carfReference: String
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, SubscriptionDisplayResponse] =
     displaySubscription(url"$displaySubscriptionBackendBaseUrl/$carfReference")

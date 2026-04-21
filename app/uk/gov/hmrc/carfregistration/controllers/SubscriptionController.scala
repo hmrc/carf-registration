@@ -56,7 +56,7 @@ class SubscriptionController @Inject() (
   }
 
   def displaySubscription(carfId: String): Action[AnyContent] = authorise.async { implicit request =>
-    subscriptionConnector.retrieveSubscriptionInformation(carfId).value.flatMap {
+    subscriptionConnector.displaySubscriptionInformation(carfId).value.flatMap {
       case Right(response)     => Future.successful(Ok(Json.toJson(response)))
       case Left(NotFoundError) =>
         Future.successful(NotFound("Could not find a subscription record for this user"))
