@@ -95,7 +95,6 @@ class SubscriptionConnector @Inject() (
       hc: HeaderCarrier
   ): ResultT[SubscriptionDisplayResponse] = {
     logger.info(s"Calling endpoint: ${endpoint.toString}")
-    val correlationId = UUID.randomUUID()
     EitherT {
       http
         .get(endpoint)
@@ -106,7 +105,7 @@ class SubscriptionConnector @Inject() (
             case OK                                                                               =>
               Try(httpResponse.json.as[SubscriptionDisplayResponse]) match {
                 case Success(data)      =>
-                  logger.debug(s"Display subscription success! Response: $data")
+                  logger.info(s"Display subscription success! Response: ${Json.prettyPrint(Json.toJson(data))}")
                   Right(data)
                 case Failure(exception) =>
                   logger.warn(
