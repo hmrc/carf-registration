@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.carfregistration.models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, OWrites, Writes}
 
 case class RegWithoutIdApiRequest(
     registerWithoutIDRequest: RegWithoutIdApiRequestDetails
 )
 
 object RegWithoutIdApiRequest {
-  implicit val format: OFormat[RegWithoutIdApiRequest] = Json.format[RegWithoutIdApiRequest]
+  implicit val writes: OWrites[RegWithoutIdApiRequest] = Json.writes[RegWithoutIdApiRequest]
 }
 
 case class RegWithoutIdApiRequestDetails(requestCommon: RequestCommon, requestDetail: RegWithoutIdRequestDetail)
 
 object RegWithoutIdApiRequestDetails {
-  implicit val format: OFormat[RegWithoutIdApiRequestDetails] = Json.format[RegWithoutIdApiRequestDetails]
+  implicit val writes: OWrites[RegWithoutIdApiRequestDetails] = Json.writes[RegWithoutIdApiRequestDetails]
 }
 
 sealed trait RegWithoutIdRequestDetail {
@@ -40,7 +40,10 @@ sealed trait RegWithoutIdRequestDetail {
 }
 
 object RegWithoutIdRequestDetail {
-  implicit val format: OFormat[RegWithoutIdRequestDetail] = Json.format[RegWithoutIdRequestDetail]
+  implicit val writes: Writes[RegWithoutIdRequestDetail] = Writes {
+    case i: RequestDetailIndividualWithoutId   => Json.toJson(i)
+    case o: RequestDetailOrganisationWithoutId => Json.toJson(o)
+  }
 }
 
 case class RequestDetailIndividualWithoutId(

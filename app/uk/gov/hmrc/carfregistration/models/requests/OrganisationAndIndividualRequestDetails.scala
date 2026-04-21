@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.carfregistration.models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, Writes}
 
 case class OrganisationDetails(
     organisationName: String,
@@ -33,7 +33,10 @@ sealed trait IndividualDetails {
 }
 
 object IndividualDetails {
-  implicit val format: OFormat[IndividualDetails] = Json.format[IndividualDetails]
+  implicit val writes: Writes[IndividualDetails] = Writes {
+    case n: IndividualDetailsWithNino => Json.toJson(n)
+    case u: IndividualDetailsWithUtr  => Json.toJson(u)
+  }
 }
 
 case class IndividualDetailsWithNino(dateOfBirth: String, firstName: String, lastName: String) extends IndividualDetails

@@ -26,7 +26,10 @@ sealed trait RequestDetailOrg {
 }
 
 object RequestDetailOrg {
-  implicit val format: OFormat[RequestDetailOrg] = Json.format[RequestDetailOrg]
+  implicit val writes: Writes[RequestDetailOrg] = Writes {
+    case ue: RequestDetailOrgUserEntry   => Json.toJson(ue)
+    case ct: RequestDetailOrgCtAutoMatch => Json.toJson(ct)
+  }
 }
 
 case class RequestDetailOrgUserEntry(
