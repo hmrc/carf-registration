@@ -31,11 +31,11 @@ object RegWithIdOrgFrontendResponse {
     Json.format[RegWithIdOrgFrontendResponse]
 
   def apply(
-      apiResponse: RegWithIdOrgApiResponse
+      apiResponse: RegWithIdApiResponse
   ): Either[ApiError, RegWithIdOrgFrontendResponse] =
-    apiResponse.registerWithIDResponse.responseDetail.organisation match {
+    val apiResponseDetail = apiResponse.registerWithIDResponse.responseDetail
+    apiResponseDetail.organisation match {
       case Some(organisationResponse: OrganisationResponse) =>
-        val apiResponseDetail = apiResponse.registerWithIDResponse.responseDetail
         Right(
           RegWithIdOrgFrontendResponse(
             safeId = apiResponseDetail.SAFEID,

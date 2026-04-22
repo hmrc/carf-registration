@@ -39,17 +39,20 @@ class RegistrationConnectorISpec
 
   val connector: RegistrationConnector = app.injector.instanceOf[RegistrationConnector]
 
-  val testApiResponseBody = RegWithIdIndApiResponse(
-    responseCommon = ResponseCommon(status = "200"),
-    responseDetail = ResponseDetail(
-      SAFEID = "Test-SafeId",
-      address = testAddressResponse,
-      individual = Some(IndividualResponse(firstName = "Katie", lastName = "Long", middleName = Some("Bjorn"))),
-      organisation = None
+  val testApiResponseBody = RegWithIdApiResponse(registerWithIDResponse =
+    RegWithIdApiResponseDetails(
+      responseCommon = ResponseCommon(status = "200"),
+      responseDetail = ResponseDetail(
+        SAFEID = "Test-SafeId",
+        address = testAddressResponse,
+        individual = Some(IndividualResponse(firstName = "Katie", lastName = "Long", middleName = Some("Bjorn"))),
+        organisation = None
+      )
     )
   )
 
   val testApiResponseJson: String = """{
+                              |"registerWithIDResponse": {
                               |  "responseCommon": {
                               |    "processingDate": "2025-11-03",
                               |    "returnParameters": [
@@ -89,6 +92,7 @@ class RegistrationConnectorISpec
                               |    "isAnIndividual": true,
                               |    "isEditable": false
                               |  }
+                              |}
                               |}""".stripMargin
 
   val testApiErrorDetailResponseJson: String = """{
@@ -184,8 +188,8 @@ class RegistrationConnectorISpec
     }
   }"""
 
-  val testOrganisationApiResponseBody = RegWithIdOrgApiResponse(
-    registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+  val testOrganisationApiResponseBody = RegWithIdApiResponse(
+    registerWithIDResponse = RegWithIdApiResponseDetails(
       responseCommon = ResponseCommon(status = "OK"),
       responseDetail = ResponseDetail(
         SAFEID = "XE0000123456789",

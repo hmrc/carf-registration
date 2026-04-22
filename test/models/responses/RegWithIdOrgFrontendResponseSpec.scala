@@ -25,8 +25,8 @@ class RegWithIdOrgFrontendResponseSpec extends SpecBase {
   "RegWithIdOrgFrontendResponse apply method" - {
     "must return a RegWithIdOrgFrontendResponse model when given a RegWithIdOrgApiResponse" - {
       "when the data is populated" in {
-        val testResponse: RegWithIdOrgApiResponse = RegWithIdOrgApiResponse(
-          registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+        val testResponse: RegWithIdApiResponse = RegWithIdApiResponse(
+          registerWithIDResponse = RegWithIdApiResponseDetails(
             responseCommon = ResponseCommon(status = "OK"),
             responseDetail = ResponseDetail(
               SAFEID = "testSafe",
@@ -52,8 +52,8 @@ class RegWithIdOrgFrontendResponseSpec extends SpecBase {
 
     "must return a MissingFieldsError model when given a RegWithIdOrgApiResponse" - {
       "with OrganisationResponse missing" in {
-        val testResponse: RegWithIdOrgApiResponse = RegWithIdOrgApiResponse(
-          registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+        val testResponse: RegWithIdApiResponse = RegWithIdApiResponse(
+          registerWithIDResponse = RegWithIdApiResponseDetails(
             responseCommon = ResponseCommon(status = "OK"),
             responseDetail = ResponseDetail(
               SAFEID = "testSafe",
