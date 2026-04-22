@@ -93,28 +93,29 @@ class AddressDetailsApiSpec extends SpecBase {
         result mustEqual expectedResult
       }
 
-      "when addressLine2 is empty and addressLine3 is filled, addressLine2 is populated by addressLine3 and addressLine3 is populated by townOrCity" in {}
-      val testAddressDetailsFrontend: AddressDetailsFrontend = AddressDetailsFrontend(
-        addressLine1 = "Mossdeep Space Centre",
-        addressLine2 = None,
-        addressLine3 = Some("Route 125"),
-        townOrCity = "Mossdeep City",
-        postalCode = None,
-        countryCode = "GB"
-      )
+      "when addressLine2 is empty and addressLine3 is filled, addressLine2 is populated by addressLine3 and addressLine3 is populated by townOrCity" in {
+        val testAddressDetailsFrontend: AddressDetailsFrontend = AddressDetailsFrontend(
+          addressLine1 = "Mossdeep Space Centre",
+          addressLine2 = None,
+          addressLine3 = Some("Route 125"),
+          townOrCity = "Mossdeep City",
+          postalCode = None,
+          countryCode = "GB"
+        )
 
-      val expectedResult: AddressDetailsApi = AddressDetailsApi(
-        addressLine1 = "Mossdeep Space Centre",
-        addressLine2 = Some("Route 125"),
-        addressLine3 = Some("Mossdeep City"),
-        addressLine4 = None,
-        postalCode = None,
-        countryCode = "GB"
-      )
+        val expectedResult: AddressDetailsApi = AddressDetailsApi(
+          addressLine1 = "Mossdeep Space Centre",
+          addressLine2 = Some("Route 125"),
+          addressLine3 = Some("Mossdeep City"),
+          addressLine4 = None,
+          postalCode = None,
+          countryCode = "GB"
+        )
 
-      val result = AddressDetailsApi.apply(testAddressDetailsFrontend)
+        val result = AddressDetailsApi.apply(testAddressDetailsFrontend)
 
-      result mustEqual expectedResult
+        result mustEqual expectedResult
+      }
     }
   }
 }
