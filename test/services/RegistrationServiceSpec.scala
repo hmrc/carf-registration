@@ -91,12 +91,14 @@ class RegistrationServiceSpec extends SpecBase {
   )
 
   val testApiResponseUserEntryOrg = RegWithIdOrgApiResponse(
-    responseCommon = ResponseCommon(status = "OK"),
-    responseDetail = ResponseDetail(
-      SAFEID = "test-SAFEID-org",
-      address = testAddressResponse,
-      individual = None,
-      organisation = Some(OrganisationResponse(organisationName = "Testing Ltd", code = Some("0001")))
+    registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+      responseCommon = ResponseCommon(status = "OK"),
+      responseDetail = ResponseDetail(
+        SAFEID = "test-SAFEID-org",
+        address = testAddressResponse,
+        individual = None,
+        organisation = Some(OrganisationResponse(organisationName = "Testing Ltd", code = Some("0001")))
+      )
     )
   )
 
@@ -114,12 +116,14 @@ class RegistrationServiceSpec extends SpecBase {
   )
 
   val testApiResponseAutoMatchOrg = RegWithIdOrgApiResponse(
-    responseCommon = ResponseCommon(status = "OK"),
-    responseDetail = ResponseDetail(
-      SAFEID = "test-SAFEID-automatch",
-      address = testAddressResponse,
-      individual = None,
-      organisation = Some(OrganisationResponse(organisationName = "AutoMatch Ltd", code = Some("0002")))
+    registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+      responseCommon = ResponseCommon(status = "OK"),
+      responseDetail = ResponseDetail(
+        SAFEID = "test-SAFEID-automatch",
+        address = testAddressResponse,
+        individual = None,
+        organisation = Some(OrganisationResponse(organisationName = "AutoMatch Ltd", code = Some("0002")))
+      )
     )
   )
 

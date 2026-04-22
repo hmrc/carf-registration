@@ -16,7 +16,6 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import itutil.{ApplicationWithWiremock, ConnectorSpecHelper}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -25,12 +24,16 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.carfregistration.connectors.RegistrationConnector
+import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.carfregistration.models.requests.*
 import uk.gov.hmrc.carfregistration.models.responses.*
-import uk.gov.hmrc.carfregistration.models.*
 import uk.gov.hmrc.http.HeaderCarrier
 
-class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutures with IntegrationPatience with ConnectorSpecHelper {
+class RegistrationConnectorISpec
+    extends ApplicationWithWiremock
+    with ScalaFutures
+    with IntegrationPatience
+    with ConnectorSpecHelper {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -161,37 +164,41 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
 
   val testOrganisationApiResponseJson: String =
     """{
-    "responseCommon": {
-      "status": "OK",
-      "processingDate": "2025-11-03"
-    },
-    "responseDetail": {
-      "SAFEID": "XE0000123456789",
-      "organisation": {
-        "organisationName": "Test Limited",
-        "code": "0001"
+    "registerWithIDResponse": {
+      "responseCommon": {
+        "status": "OK",
+        "processingDate": "2025-11-03"
       },
-      "address": {
-        "addressLine1": "123 Test Street",
-        "addressLine2": "Islington",
-        "countryCode": "GB"
+      "responseDetail": {
+        "SAFEID": "XE0000123456789",
+        "organisation": {
+          "organisationName": "Test Limited",
+          "code": "0001"
+        },
+        "address": {
+          "addressLine1": "123 Test Street",
+          "addressLine2": "Islington",
+          "countryCode": "GB"
+        }
       }
     }
   }"""
 
   val testOrganisationApiResponseBody = RegWithIdOrgApiResponse(
-    responseCommon = ResponseCommon(status = "OK"),
-    responseDetail = ResponseDetail(
-      SAFEID = "XE0000123456789",
-      organisation = Some(OrganisationResponse(organisationName = "Test Limited", code = Some("0001"))),
-      individual = None,
-      address = AddressResponse(
-        addressLine1 = "123 Test Street",
-        addressLine2 = Some("Islington"),
-        addressLine3 = None,
-        addressLine4 = None,
-        countryCode = "GB",
-        postalCode = None
+    registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+      responseCommon = ResponseCommon(status = "OK"),
+      responseDetail = ResponseDetail(
+        SAFEID = "XE0000123456789",
+        organisation = Some(OrganisationResponse(organisationName = "Test Limited", code = Some("0001"))),
+        individual = None,
+        address = AddressResponse(
+          addressLine1 = "123 Test Street",
+          addressLine2 = Some("Islington"),
+          addressLine3 = None,
+          addressLine4 = None,
+          countryCode = "GB",
+          postalCode = None
+        )
       )
     )
   )
@@ -479,9 +486,10 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return InternalServerError if 400 returned with error detail body" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(BAD_REQUEST)
-            .withBody(testApiErrorDetailResponseJson)
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody(testApiErrorDetailResponseJson)
           )
       )
 
@@ -492,9 +500,10 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return InternalServerError if 422 returned with error detail body" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(UNPROCESSABLE_ENTITY)
-            .withBody(testApiErrorDetailResponseJson)
+          .willReturn(
+            aResponse()
+              .withStatus(UNPROCESSABLE_ENTITY)
+              .withBody(testApiErrorDetailResponseJson)
           )
       )
 
@@ -505,9 +514,10 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return InternalServerError for 500 response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(INTERNAL_SERVER_ERROR)
-            .withBody(testApiErrorDetailResponseJson)
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(testApiErrorDetailResponseJson)
           )
       )
 
@@ -518,9 +528,10 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return InternalServerError for 503 response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(SERVICE_UNAVAILABLE)
-            .withBody(testApiErrorDetailResponseJson)
+          .willReturn(
+            aResponse()
+              .withStatus(SERVICE_UNAVAILABLE)
+              .withBody(testApiErrorDetailResponseJson)
           )
       )
 
@@ -531,8 +542,9 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return InternalServerError for 403 response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(FORBIDDEN)
+          .willReturn(
+            aResponse()
+              .withStatus(FORBIDDEN)
           )
       )
 
@@ -543,8 +555,9 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return InternalServerError for 405 response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(METHOD_NOT_ALLOWED)
+          .willReturn(
+            aResponse()
+              .withStatus(METHOD_NOT_ALLOWED)
           )
       )
 
@@ -555,8 +568,9 @@ class RegistrationConnectorISpec extends ApplicationWithWiremock with ScalaFutur
     "return JsonValidationError if ErrorDetail cannot be parsed in response" in {
       stubFor(
         post(urlPathMatching("/dac6/dprs0101/v1"))
-          .willReturn(aResponse()
-            .withStatus(INTERNAL_SERVER_ERROR)
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
           )
       )
 

@@ -26,12 +26,14 @@ class RegWithIdOrgFrontendResponseSpec extends SpecBase {
     "must return a RegWithIdOrgFrontendResponse model when given a RegWithIdOrgApiResponse" - {
       "when the data is populated" in {
         val testResponse: RegWithIdOrgApiResponse = RegWithIdOrgApiResponse(
-          responseCommon = ResponseCommon(status = "OK"),
-          responseDetail = ResponseDetail(
-            SAFEID = "testSafe",
-            address = testAddress,
-            individual = None,
-            organisation = Some(OrganisationResponse("testName", Some("testCode")))
+          registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+            responseCommon = ResponseCommon(status = "OK"),
+            responseDetail = ResponseDetail(
+              SAFEID = "testSafe",
+              address = testAddress,
+              individual = None,
+              organisation = Some(OrganisationResponse("testName", Some("testCode")))
+            )
           )
         )
 
@@ -44,25 +46,27 @@ class RegWithIdOrgFrontendResponseSpec extends SpecBase {
 
         val result = RegWithIdOrgFrontendResponse.apply(testResponse)
 
-        result mustEqual Right(expectedResult)
+        result mustBe Right(expectedResult)
       }
     }
 
     "must return a MissingFieldsError model when given a RegWithIdOrgApiResponse" - {
       "with OrganisationResponse missing" in {
         val testResponse: RegWithIdOrgApiResponse = RegWithIdOrgApiResponse(
-          responseCommon = ResponseCommon(status = "OK"),
-          responseDetail = ResponseDetail(
-            SAFEID = "testSafe",
-            address = testAddress,
-            individual = None,
-            organisation = None
+          registerWithIDResponse = RegWithIdOrgApiResponseDetails(
+            responseCommon = ResponseCommon(status = "OK"),
+            responseDetail = ResponseDetail(
+              SAFEID = "testSafe",
+              address = testAddress,
+              individual = None,
+              organisation = None
+            )
           )
         )
 
         val result = RegWithIdOrgFrontendResponse.apply(testResponse)
 
-        result mustEqual Left(MissingFieldsError)
+        result mustBe Left(MissingFieldsError)
       }
     }
   }
