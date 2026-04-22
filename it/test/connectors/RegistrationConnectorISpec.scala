@@ -129,7 +129,7 @@ class RegistrationConnectorISpec
     countryCode = "GB"
   )
 
-  private val testAddress = AddressDetails(
+  private val testAddress = AddressDetailsApi(
     addressLine1 = "123 Test Street",
     addressLine2 = Some("Flat 1"),
     addressLine3 = None,

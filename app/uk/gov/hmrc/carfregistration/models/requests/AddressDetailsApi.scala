@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import scala.collection.immutable.Seq
 
-case class AddressDetails(
+case class AddressDetailsApi(
     addressLine1: String,
     addressLine2: Option[String],
     addressLine3: Option[String],
@@ -29,19 +29,19 @@ case class AddressDetails(
     countryCode: String
 )
 
-object AddressDetails {
-  implicit val format: OFormat[AddressDetails] = Json.format[AddressDetails]
+object AddressDetailsApi {
+  implicit val format: OFormat[AddressDetailsApi] = Json.format[AddressDetailsApi]
 
   def apply(
       addressDetailsFrontend: AddressDetailsFrontend
-  ): AddressDetails =
+  ): AddressDetailsApi =
     val addressOptionalLines = Seq(
       addressDetailsFrontend.addressLine2,
       addressDetailsFrontend.addressLine3,
       Some(addressDetailsFrontend.townOrCity)
     ).flatten
 
-    AddressDetails(
+    AddressDetailsApi(
       addressLine1 = addressDetailsFrontend.addressLine1,
       addressLine2 = addressOptionalLines.headOption,
       addressLine3 = addressOptionalLines.lift(1),

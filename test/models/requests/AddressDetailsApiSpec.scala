@@ -17,11 +17,11 @@
 package models.requests
 
 import base.SpecBase
-import uk.gov.hmrc.carfregistration.models.requests.{AddressDetails, AddressDetailsFrontend}
+import uk.gov.hmrc.carfregistration.models.requests.{AddressDetailsApi, AddressDetailsFrontend}
 
-class AddressDetailsSpec extends SpecBase {
+class AddressDetailsApiSpec extends SpecBase {
 
-  "AddressDetails apply method" - {
+  "AddressDetailsApi apply method" - {
     "must return an AddressDetails model when given an AddressDetailsFrontendRequest" - {
       "when addressLine2 is empty, addressLine2 is populated by townOrCity" in {
         val testAddressDetailsFrontend: AddressDetailsFrontend = AddressDetailsFrontend(
@@ -33,7 +33,7 @@ class AddressDetailsSpec extends SpecBase {
           countryCode = "GB"
         )
 
-        val expectedResult: AddressDetails = AddressDetails(
+        val expectedResult: AddressDetailsApi = AddressDetailsApi(
           addressLine1 = "Route 103",
           addressLine2 = Some("Oldale Town"),
           addressLine3 = None,
@@ -42,7 +42,7 @@ class AddressDetailsSpec extends SpecBase {
           countryCode = "GB"
         )
 
-        val result = AddressDetails.apply(testAddressDetailsFrontend)
+        val result = AddressDetailsApi.apply(testAddressDetailsFrontend)
 
         result mustEqual expectedResult
       }
@@ -56,7 +56,7 @@ class AddressDetailsSpec extends SpecBase {
           countryCode = "GB"
         )
 
-        val expectedResult: AddressDetails = AddressDetails(
+        val expectedResult: AddressDetailsApi = AddressDetailsApi(
           addressLine1 = "New Mauville",
           addressLine2 = Some("Route 110"),
           addressLine3 = Some("Mauville"),
@@ -65,7 +65,7 @@ class AddressDetailsSpec extends SpecBase {
           countryCode = "GB"
         )
 
-        val result = AddressDetails.apply(testAddressDetailsFrontend)
+        val result = AddressDetailsApi.apply(testAddressDetailsFrontend)
 
         result mustEqual expectedResult
       }
@@ -79,7 +79,7 @@ class AddressDetailsSpec extends SpecBase {
           countryCode = "GB"
         )
 
-        val expectedResult: AddressDetails = AddressDetails(
+        val expectedResult: AddressDetailsApi = AddressDetailsApi(
           addressLine1 = "Champions Room",
           addressLine2 = Some("Hoenn League"),
           addressLine3 = Some("Victory Road"),
@@ -88,10 +88,33 @@ class AddressDetailsSpec extends SpecBase {
           countryCode = "GB"
         )
 
-        val result = AddressDetails.apply(testAddressDetailsFrontend)
+        val result = AddressDetailsApi.apply(testAddressDetailsFrontend)
 
         result mustEqual expectedResult
       }
+
+      "when addressLine2 is empty and addressLine3 is filled, addressLine2 is populated by addressLine3 and addressLine3 is populated by townOrCity" in {}
+      val testAddressDetailsFrontend: AddressDetailsFrontend = AddressDetailsFrontend(
+        addressLine1 = "Mossdeep Space Centre",
+        addressLine2 = None,
+        addressLine3 = Some("Route 125"),
+        townOrCity = "Mossdeep City",
+        postalCode = None,
+        countryCode = "GB"
+      )
+
+      val expectedResult: AddressDetailsApi = AddressDetailsApi(
+        addressLine1 = "Mossdeep Space Centre",
+        addressLine2 = Some("Route 125"),
+        addressLine3 = Some("Mossdeep City"),
+        addressLine4 = None,
+        postalCode = None,
+        countryCode = "GB"
+      )
+
+      val result = AddressDetailsApi.apply(testAddressDetailsFrontend)
+
+      result mustEqual expectedResult
     }
   }
 }
