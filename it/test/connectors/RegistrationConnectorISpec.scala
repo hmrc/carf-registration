@@ -133,11 +133,11 @@ class RegistrationConnectorISpec
     countryCode = "GB"
   )
 
-  private val testAddressFrontend = AddressDetailsFrontend(
+  private val testAddress = AddressDetailsApi(
     addressLine1 = "123 Test Street",
     addressLine2 = Some("Flat 1"),
     addressLine3 = None,
-    townOrCity = "France",
+    addressLine4 = Some("France"),
     postalCode = Some("75008"),
     countryCode = "FR"
   )
@@ -220,7 +220,7 @@ class RegistrationConnectorISpec
           lastName = "Doe",
           dateOfBirth = "1990-01-01"
         ),
-        address = testAddressFrontend,
+        address = testAddress,
         contactDetails = testContactDetails
       )
     )
@@ -237,7 +237,7 @@ class RegistrationConnectorISpec
         organisation = OrganisationDetailsWithoutId(
           organisationName = "ABC LTD"
         ),
-        address = testAddressFrontend,
+        address = testAddress,
         contactDetails = testContactDetails
       )
     )
@@ -383,7 +383,7 @@ class RegistrationConnectorISpec
             "address": {
               "addressLine1": "123 Test Street",
               "addressLine2": "Flat 1",
-              "townOrCity": "France",
+              "addressLine4": "France",
               "postalCode": "75008",
               "countryCode": "FR"
             },
@@ -414,7 +414,7 @@ class RegistrationConnectorISpec
                 "address": {
                   "addressLine1": "123 Test Street",
                   "addressLine2": "Flat 1",
-                  "townOrCity": "France",
+                  "addressLine4": "France",
                   "postalCode": "75008",
                   "countryCode": "FR"
                 },
