@@ -67,7 +67,7 @@ class SubscriptionController @Inject() (
         valid = subscription =>
           subscriptionConnector.updateSubscription(subscription).value.map {
             case Right(httpResponse)                =>
-              Status(httpResponse.status)(httpResponse.body)
+              Ok(httpResponse.body)
             case Left((apiError, maybeErrorDetail)) =>
               logger.warn(s"Error sending updated subscription information: $apiError")
               maybeErrorDetail.fold(InternalServerError("Error sending updated subscription information")) {

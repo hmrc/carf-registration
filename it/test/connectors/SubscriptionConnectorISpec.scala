@@ -291,7 +291,7 @@ class SubscriptionConnectorISpec
       result.map(_.body) mustBe Right(testSubscriptionResponseJson)
     }
 
-    "return Left InternalServerError if BAD_REQUEST status response is returned from backend" in {
+    "return Left InternalServerError if BAD_REQUEST status response is returned from third party" in {
       stubFor(
         put(urlPathMatching("/dac6/updatesubscriptiondata/carf/v1"))
           .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(testApiErrorDetailResponseJson))
@@ -312,6 +312,23 @@ class SubscriptionConnectorISpec
 
       val result = connector.updateSubscription(testSubscriptionRequest).value.futureValue
       result mustBe Left((InternalServerError, Option(expectedErrorDetail)))
+    }
+
+    "return InternalServerError with no errorDetail if error response cannot be parsed" in {
+      stubFor(
+        put(urlPathMatching("/dac6/updatesubscriptiondata/carf/v1"))
+          .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(
+
+            """{
+              |  "errorDetail": {
+              |    "errorMessage": "Bad Json folks that is all",
+              |  }
+              |}""".stripMargin
+          ))
+      )
+
+      val result = connector.updateSubscription(testSubscriptionRequest).value.futureValue
+      result mustBe Left((InternalServerError, None))
     }
   }
 
