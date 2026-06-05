@@ -54,13 +54,17 @@ sealed trait RcaspDetails {
 }
 
 object RcaspDetails {
-  implicit val writes: OWrites[RcaspDetails] = {
-    case i: IndividualRcaspDetails   => IndividualRcaspDetails.writes.writes(i)
-    case o: OrganisationRcaspDetails => OrganisationRcaspDetails.writes.writes(o)
+
+  implicit val reads: Reads[RcaspDetails] = Reads { json =>
+    (json \ "TradingName").validateOpt[String].flatMap {
+      case Some(_) => json.validate[OrganisationRcaspDetails]
+      case None    => json.validate[IndividualRcaspDetails]
+    }
   }
-  implicit val reads: Reads[RcaspDetails]    = {
-    case i: IndividualRcaspDetails   => IndividualRcaspDetails.reads.reads(i)
-    case o: OrganisationRcaspDetails => OrganisationRcaspDetails.reads.reads(o)
+
+  implicit val writes: Writes[RcaspDetails] = {
+    case i: IndividualRcaspDetails   => IndividualRcaspDetails.format.writes(i)
+    case o: OrganisationRcaspDetails => OrganisationRcaspDetails.format.writes(o)
   }
 }
 
@@ -77,8 +81,7 @@ case class IndividualRcaspDetails(
 ) extends RcaspDetails
 
 object IndividualRcaspDetails {
-  implicit val writes: OWrites[IndividualRcaspDetails] = Json.writes[IndividualRcaspDetails]
-  implicit val reads: Reads[IndividualRcaspDetails]    = Json.reads[IndividualRcaspDetails]
+  implicit val format: OFormat[IndividualRcaspDetails] = Json.format[IndividualRcaspDetails]
 }
 
 case class OrganisationRcaspDetails(
@@ -95,8 +98,7 @@ case class OrganisationRcaspDetails(
 ) extends RcaspDetails
 
 object OrganisationRcaspDetails {
-  implicit val writes: OWrites[OrganisationRcaspDetails] = Json.writes[OrganisationRcaspDetails]
-  implicit val reads: Reads[OrganisationRcaspDetails]    = Json.reads[OrganisationRcaspDetails]
+  implicit val format: OFormat[OrganisationRcaspDetails] = Json.format[OrganisationRcaspDetails]
 }
 
 case class RcaspResponseDetails(RCASPList: List[RcaspDetails])

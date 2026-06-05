@@ -21,11 +21,10 @@ import itutil.{ApplicationWithWiremock, ConnectorSpecHelper}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatest.matchers.should.Matchers
-import play.api.http.Status.OK
-import play.api.libs.json.Json
+import play.api.http.Status.*
 import uk.gov.hmrc.carfmanagement.connectors.RcaspConnector
 import uk.gov.hmrc.carfmanagement.models.responses.*
-import uk.gov.hmrc.carfregistration.models.responses.AddressResponse
+import uk.gov.hmrc.carfregistration.models.{InternalServerError, JsonValidationError}
 import uk.gov.hmrc.http.HeaderCarrier
 
 class RcaspConnectorISpec
@@ -63,7 +62,7 @@ class RcaspConnectorISpec
             PartyType = "Organisation",
             RCASPName = "Mesagoza",
             TradingName = "Uva Academy",
-            TINDetails = Some(List(TinDetails(TINType = "UTR", TIN = "68933694", IssuedBy = "GB"))),
+            TINDetails = Some(List(TinDetails(TINType = "UTR", TIN = "68936493", IssuedBy = "GB"))),
             AddressDetails = testAddressResponse,
             PrimaryContactDetails = Some(exampleContact),
             SecondaryContactDetails = Some(exampleContact.copy(ContactName = "Prof Turo"))
@@ -163,6 +162,80 @@ class RcaspConnectorISpec
 
       val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
       result mustBe Right(testViewRcaspResponse)
+    }
+
+    "return Left JsonValidationError if json is incorrectly formatter" in {
+      val mappingBuilder = addMatchHeaders(
+        get(urlPathMatching(testUrl))
+      )
+
+      stubFor(
+        mappingBuilder
+          .willReturn(aResponse().withStatus(OK).withBody(""))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(JsonValidationError)
+    }
+
+    "return Left InternalServerError if BAD_REQUEST status response is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(testApiErrorDetailResponseJson))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return Left InternalServerError if SERVICE_UNAVAILABLE status response is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE).withBody(testApiErrorDetailResponseJson))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return Left InternalServerError if FORBIDDEN status response is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(FORBIDDEN))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return Left InternalServerError if UNPROCESSABLE_ENTITY status response is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY).withBody(testApiErrorDetailResponseJson))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return Left InternalServerError if 500 status response is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(testApiErrorDetailResponseJson))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(InternalServerError)
+    }
+
+    "return Left InternalServerError if unexpected status code is returned from backend" in {
+      stubFor(
+        get(urlPathMatching(testUrl))
+          .willReturn(aResponse().withStatus(502))
+      )
+
+      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      result mustBe Left(InternalServerError)
     }
   }
 }
