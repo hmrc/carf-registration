@@ -44,9 +44,10 @@ class RcaspConnector @Inject() (
   private val viewRcaspBackendBaseUrl = config.viewRcaspBaseUrl
 
   def viewRcaspInformation(
-      carfId: String
+      carfId: String,
+      rcaspId: String
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, ViewRcaspResponse] =
-    viewRcasp(url"$viewRcaspBackendBaseUrl/$carfId/none")
+    viewRcasp(url"$viewRcaspBackendBaseUrl/$carfId/$rcaspId")
 
   private def viewRcasp(endpoint: URL)(implicit hc: HeaderCarrier): ResultT[ViewRcaspResponse] = {
     logger.info(s"Calling endpoint: ${endpoint.toString}")

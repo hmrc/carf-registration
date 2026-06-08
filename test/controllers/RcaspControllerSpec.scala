@@ -22,12 +22,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.http.Status.*
 import play.api.libs.json.Json
-import play.api.mvc.Result
 import play.api.mvc.Results.InternalServerError
 import play.api.test.Helpers.{contentAsString, status}
 import uk.gov.hmrc.carfmanagement.connectors.RcaspConnector
 import uk.gov.hmrc.carfmanagement.controllers.RcaspController
-import uk.gov.hmrc.carfmanagement.models.responses.{OrganisationRcaspDetails, RcaspAddress, RcaspContact, RcaspResponseCommon, RcaspResponseDetails, TinDetails, ViewRcasp, ViewRcaspResponse}
+import uk.gov.hmrc.carfmanagement.models.responses.*
 import uk.gov.hmrc.carfregistration.models.{ApiError, JsonValidationError}
 
 import scala.concurrent.Future
@@ -90,14 +89,14 @@ class RcaspControllerSpec extends SpecBase {
   "RcaspController" - {
     "viewRcasp" - {
       "must return success response when the connector successfully sends GET request" in {
-        when(mockConnector.viewRcaspInformation(any())(any()))
+        when(mockConnector.viewRcaspInformation(any(), any())(any()))
           .thenReturn(
             EitherT.rightT[Future, ApiError](
               testViewRcaspResponse
             )
           )
 
-        val result = testController.viewRcasp(exampleCarfId)(fakeRequest)
+        val result = testController.viewRcasp(exampleCarfId, exampleRcaspId)(fakeRequest)
 
         status(result)          mustBe OK
         contentAsString(result) mustBe testViewRcaspResponseJson
@@ -106,20 +105,20 @@ class RcaspControllerSpec extends SpecBase {
       "must return internal server error when connector returns" - {
 
         "InternalServerError" in {
-          when(mockConnector.viewRcaspInformation(any())(any()))
+          when(mockConnector.viewRcaspInformation(any(), any())(any()))
             .thenReturn(EitherT.leftT[Future, ViewRcaspResponse](InternalServerError))
 
-          val result = testController.viewRcasp(exampleCarfId)(fakeRequest)
+          val result = testController.viewRcasp(exampleCarfId, exampleRcaspId)(fakeRequest)
 
           status(result)        mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) must include("Unexpected error")
         }
 
         "JsonValidationError" in {
-          when(mockConnector.viewRcaspInformation(any())(any()))
+          when(mockConnector.viewRcaspInformation(any(), any())(any()))
             .thenReturn(EitherT.leftT[Future, ViewRcaspResponse](JsonValidationError))
 
-          val result = testController.viewRcasp(exampleCarfId)(fakeRequest)
+          val result = testController.viewRcasp(exampleCarfId, exampleRcaspId)(fakeRequest)
 
           status(result)        mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) must include("Unexpected error")

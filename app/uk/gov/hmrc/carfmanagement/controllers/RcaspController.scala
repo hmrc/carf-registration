@@ -34,8 +34,8 @@ class RcaspController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def viewRcasp(carfId: String): Action[AnyContent] = authorise.async { implicit request =>
-    rcaspConnector.viewRcaspInformation(carfId).value.flatMap {
+  def viewRcasp(carfId: String, rcaspId: String): Action[AnyContent] = authorise.async { implicit request =>
+    rcaspConnector.viewRcaspInformation(carfId, rcaspId).value.flatMap {
       case Right(response) => Future.successful(Ok(Json.toJson(response)))
       case Left(_)         => Future.successful(InternalServerError("Unexpected error"))
     }

@@ -148,7 +148,7 @@ class RcaspConnectorISpec
 
   "viewRcaspInformation" should {
 
-    val testUrl = s"/dac6/viewrcaspdata/v1/$exampleCarfId/none"
+    val testUrl = s"/dac6/viewrcaspdata/v1/$exampleCarfId/$exampleRcaspId"
 
     "successfully retrieve the API response for a 200 OK" in {
       val mappingBuilder = addMatchHeaders(
@@ -160,7 +160,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(OK).withBody(testViewRcaspResponseJson))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Right(testViewRcaspResponse)
     }
 
@@ -174,7 +174,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(OK).withBody(""))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(JsonValidationError)
     }
 
@@ -184,7 +184,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(BAD_REQUEST).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -194,7 +194,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -204,7 +204,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(FORBIDDEN))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -214,7 +214,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -224,7 +224,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(testApiErrorDetailResponseJson))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(InternalServerError)
     }
 
@@ -234,7 +234,7 @@ class RcaspConnectorISpec
           .willReturn(aResponse().withStatus(502))
       )
 
-      val result = connector.viewRcaspInformation(exampleCarfId).value.futureValue
+      val result = connector.viewRcaspInformation(exampleCarfId, exampleRcaspId).value.futureValue
       result mustBe Left(InternalServerError)
     }
   }
