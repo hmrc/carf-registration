@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfmanagement.models.responses
+package uk.gov.hmrc.carfregistration.models.responses
 
 import play.api.libs.json.*
 

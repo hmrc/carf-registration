@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfmanagement.connectors
+package uk.gov.hmrc.carfregistration.connectors
 
 import cats.data.EitherT
 import com.google.inject.Inject
@@ -22,14 +22,15 @@ import play.api.Logging
 import play.api.http.Status.*
 import play.api.libs.json.*
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.carfmanagement.models.responses.ViewRcaspResponse
+import uk.gov.hmrc.carfregistration.connectors.additionalHeaders
 import uk.gov.hmrc.carfregistration.config.AppConfig
+import uk.gov.hmrc.carfregistration.models.responses.ViewRcaspResponse
 import uk.gov.hmrc.carfregistration.models.{JsonValidationError, *}
 import uk.gov.hmrc.carfregistration.types.ResultT
 import uk.gov.hmrc.carfregistration.utils.ErrorDetailsHandler
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}

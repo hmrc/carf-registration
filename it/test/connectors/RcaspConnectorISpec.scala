@@ -22,8 +22,9 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.*
-import uk.gov.hmrc.carfmanagement.connectors.RcaspConnector
-import uk.gov.hmrc.carfmanagement.models.responses.*
+import uk.gov.hmrc.carfregistration.models.responses.*
+import uk.gov.hmrc.carfregistration.connectors.RcaspConnector
+import uk.gov.hmrc.carfregistration.models.responses.{OrganisationRcaspDetails, RcaspAddress, RcaspContact, RcaspResponseCommon, RcaspResponseDetails, TinDetails, ViewRcasp, ViewRcaspResponse}
 import uk.gov.hmrc.carfregistration.models.{InternalServerError, JsonValidationError}
 import uk.gov.hmrc.http.HeaderCarrier
 

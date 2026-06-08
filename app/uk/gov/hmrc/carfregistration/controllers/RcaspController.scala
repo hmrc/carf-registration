@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.carfmanagement.controllers
+package uk.gov.hmrc.carfregistration.controllers
 
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.libs.json.*
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.carfmanagement.connectors.RcaspConnector
+import uk.gov.hmrc.carfregistration.connectors.RcaspConnector
 import uk.gov.hmrc.carfregistration.controllers.actions.AuthAction
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 

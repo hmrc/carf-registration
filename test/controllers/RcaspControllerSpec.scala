@@ -24,9 +24,10 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.mvc.Results.InternalServerError
 import play.api.test.Helpers.{contentAsString, status}
-import uk.gov.hmrc.carfmanagement.connectors.RcaspConnector
-import uk.gov.hmrc.carfmanagement.controllers.RcaspController
-import uk.gov.hmrc.carfmanagement.models.responses.*
+import uk.gov.hmrc.carfregistration.models.responses.*
+import uk.gov.hmrc.carfregistration.connectors.RcaspConnector
+import uk.gov.hmrc.carfregistration.controllers.RcaspController
+import uk.gov.hmrc.carfregistration.models.responses.{OrganisationRcaspDetails, RcaspAddress, RcaspContact, RcaspResponseCommon, RcaspResponseDetails, TinDetails, ViewRcasp, ViewRcaspResponse}
 import uk.gov.hmrc.carfregistration.models.{ApiError, JsonValidationError}
 
 import scala.concurrent.Future
