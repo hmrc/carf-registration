@@ -1,3 +1,4 @@
 # Add all the application routes to the app.routes file
 ->        /carf-registration        app.Routes
+->        /carf-management          management.Routes
 ->        /                         health.Routes
