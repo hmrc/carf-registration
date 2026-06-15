@@ -204,7 +204,7 @@ class RcaspConnectorISpec
     "return Left InternalServerError if FORBIDDEN status response is returned from backend" in {
       stubFor(
         get(urlPathMatching(testUrl))
-          .willReturn(aResponse().withStatus(FORBIDDEN))
+          .willReturn(aResponse().withStatus(FORBIDDEN).withBody(testApiErrorDetailResponseJson))
       )
 
       val result = connector.viewRcasps(exampleCarfId, exampleRcaspId).value.futureValue
