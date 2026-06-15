@@ -11,5 +11,3 @@ PUT         /subscription/amend                    uk.gov.hmrc.carfregistration.
 
 POST        /individual-without-id                 uk.gov.hmrc.carfregistration.controllers.RegistrationController.registerIndividualWithoutId()
 POST        /organisation-without-id               uk.gov.hmrc.carfregistration.controllers.RegistrationController.registerOrganisationWithoutId()
-
-POST        /carf-management/create                uk.gov.hmrc.carfregistration.controllers.RcaspController.submitRcasp()
