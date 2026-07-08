@@ -139,7 +139,7 @@ class RcaspControllerSpec extends SpecBase {
       }
     }
 
-    "submitRcasp" - {
+    "createRcasp" - {
       val buildCreateOrgRcaspJson: JsValue =
         Json.parse(
           s"""
@@ -249,7 +249,7 @@ class RcaspControllerSpec extends SpecBase {
            |    "RequestCommon": {
            |      "OriginatingSystem": "MDTP",
            |      "TransmittingSystem": "EIS",
-           |      "RequestType": "CREATE",
+           |      "RequestType": "UPDATE",
            |      "Regime": "CARF",
            |      "RequestParameters": [
            |        {

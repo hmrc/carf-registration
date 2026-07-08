@@ -243,8 +243,8 @@ class RcaspConnectorISpec
     }
   }
 
-  "submitRcasp" should {
-    val testUrl = s"/dac6/SubmitRCASPData/v1"
+  "createRcasp" should {
+    val testUrl = "/dac6/SubmitRCASPData/v1"
 
     val createRcaspRequest: CreateRcaspRequest =
       CreateRcaspRequest(
@@ -422,7 +422,7 @@ class RcaspConnectorISpec
   }
 
   "updateRcasp" should {
-    val testUrl = s"/dac6/SubmitRCASPData/v1"
+    val testUrl = "/dac6/SubmitRCASPData/v1"
 
     val updateRcaspRequest: UpdateRcaspRequest =
       UpdateRcaspRequest(
@@ -601,7 +601,7 @@ class RcaspConnectorISpec
   }
 
   "deleteRcasp" should {
-    val testUrl = s"/dac6/SubmitRCASPData/v1"
+    val testUrl = "/dac6/SubmitRCASPData/v1"
 
     val deleteRcaspRequest: DeleteRcaspRequest =
       DeleteRcaspRequest(
