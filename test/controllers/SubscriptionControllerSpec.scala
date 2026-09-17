@@ -166,8 +166,7 @@ class SubscriptionControllerSpec extends SpecBase {
         verify(mockConnector, times(1)).updateSubscription(eqTo(testSubscriptionRequest))(any())
       }
 
-      "must return internal server error when the connector returns an error status code" in {
-
+      "must return internal server error when the connector returns InternalServerError with ErrorDetail" in {
         val errorDetail = ErrorDetail(
           errorDetail = ErrorDetails(
             "2026-05-11T21:54:12.015Z",
@@ -188,6 +187,18 @@ class SubscriptionControllerSpec extends SpecBase {
 
         contentAsString(result) must include("Service Unavailable")
         contentAsString(result) must include("correlationId")
+
+        verify(mockConnector, times(1)).updateSubscription(eqTo(testSubscriptionRequest))(any())
+      }
+
+      "must return internal server error when the connector returns InternalServerError without ErrorDetail" in {
+        when(mockConnector.updateSubscription(any())(any()))
+          .thenReturn(EitherT.leftT[Future, HttpResponse]((InternalServerError, None)))
+
+        val result = testController.updateSubscription()(fakeRequestWithJsonBody(testSubscriptionRequestJson))
+
+        status(result)        mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) must include("Error sending updated subscription information")
 
         verify(mockConnector, times(1)).updateSubscription(eqTo(testSubscriptionRequest))(any())
       }
